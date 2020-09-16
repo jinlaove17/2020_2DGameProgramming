@@ -1,3 +1,2 @@
-# Term-Project
-# 2017180038 전종우
+# Final Project
 [KPU] 2D GameProgramming
