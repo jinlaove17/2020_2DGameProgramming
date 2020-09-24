@@ -3,6 +3,7 @@
 __1. 게임의 소개__
 - 게임 제목 : Escape Room
 - Copy한 게임 : Beer Monster
+- ![Beer Monster2](.D:\Python\2DGP\2D GameProgramming\Final Project/Beer Monster2)
 - 게임의 목적 : 장애물을 피해 여러 맵에 흩어져 있는 열쇠를 모아 방을 탈출하는 게임이다.
 - 게임의 방법 : 키보드의 방향키로 캐릭터를 움직일 수 있으며 SPACE로 점프를 할 수 있다.
 
