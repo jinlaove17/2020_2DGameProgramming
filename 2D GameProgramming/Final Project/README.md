@@ -2,7 +2,7 @@
 
 __1. 게임의 소개__
 - 게임 제목 : Escape Room
-- Copy한 게임 : Beer Monster
+- Copy한 게임 : Beer Monster  
 ![Beer Monster1](https://user-images.githubusercontent.com/70697461/94151795-ca03be00-feb5-11ea-9946-f2fcbed98a10.GIF)
 ![Beer Monster2](https://user-images.githubusercontent.com/70697461/94151428-5d88bf00-feb5-11ea-87e6-5f09f57e73af.GIF)
 - 게임의 목적 : 장애물을 피해 여러 맵에 흩어져 있는 열쇠를 모아 방을 탈출하는 게임이다.
