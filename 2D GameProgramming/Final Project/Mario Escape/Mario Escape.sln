@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30503.244
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Mario Escape", "Mario Escape\Mario Escape.pyproj", "{FBFDACF6-7CD4-4390-9C5B-C9C8D9F0DDEE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FBFDACF6-7CD4-4390-9C5B-C9C8D9F0DDEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBFDACF6-7CD4-4390-9C5B-C9C8D9F0DDEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {22786C70-AB5D-41DA-9456-D3F5029A2286}
+	EndGlobalSection
+EndGlobal
