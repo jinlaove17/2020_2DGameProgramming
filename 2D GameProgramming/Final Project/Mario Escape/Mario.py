@@ -13,14 +13,14 @@ class Mario:
 	DIE = 7
 
 	KEY_MAP = {
-		(SDL_KEYDOWN, SDLK_UP):    ( 0,  1, CLIMB),
-		(SDL_KEYDOWN, SDLK_DOWN):  ( 0, -1, CLIMB),
-		(SDL_KEYDOWN, SDLK_LEFT):  (-1,  0, LEFT_RUN),
-		(SDL_KEYDOWN, SDLK_RIGHT): ( 1,  0, RIGHT_RUN),
-		(SDL_KEYUP, SDLK_UP):      ( 0, -1, CLIMB),
-		(SDL_KEYUP, SDLK_DOWN):    ( 0,  1, CLIMB),
-		(SDL_KEYUP, SDLK_LEFT):    ( 1,  0, LEFT_IDLE),
-		(SDL_KEYUP, SDLK_RIGHT):   (-1,  0, RIGHT_IDLE)
+		(SDL_KEYDOWN, SDLK_UP):    ( 0,  1),
+		(SDL_KEYDOWN, SDLK_DOWN):  ( 0, -1),
+		(SDL_KEYDOWN, SDLK_LEFT):  (-1,  0),
+		(SDL_KEYDOWN, SDLK_RIGHT): ( 1,  0),
+		(SDL_KEYUP, SDLK_UP):      ( 0, -1),
+		(SDL_KEYUP, SDLK_DOWN):    ( 0,  1),
+		(SDL_KEYUP, SDLK_LEFT):    ( 1,  0),
+		(SDL_KEYUP, SDLK_RIGHT):   (-1,  0)
 	}
 
 	KEY_SPACE = (SDL_KEYDOWN, SDLK_SPACE)
@@ -49,29 +49,43 @@ class Mario:
 	]
 
 	def __init__(self):
-		self.x, self.y = (100, 130)
-		self.dx, self.dy = (0, 0)
-		self.speed = 5
+		self.pos = (100, 130)
+		self.delta = (0, 0)
 		self.fidx = 0
 		self.time = 0
 		self.state = Mario.RIGHT_IDLE
 		self.image = load_image("image/Mario.png")
 
 	def draw(self):
-		 self.image.clip_draw(*Mario.IMAGE_RECT[self.state][self.fidx], self.x, self.y)
+		 self.image.clip_draw(*Mario.IMAGE_RECT[self.state][self.fidx], *self.pos)
 
 	def update(self):
-		self.x += self.speed * self.dx
-		self.y += self.speed * self.dy
+		x, y = self.pos
+		dx, dy = self.delta
+		self.pos = x + dx, y + dy
 		self.time += GameFramework.delta_time
 		self.fidx = int(self.time * 7) % len(Mario.IMAGE_RECT[self.state])
+		
+	def update_delta(self, ddx, ddy):
+		dx, dy = self.delta
+		dx += 3 * ddx
+		dy += 3 * ddy
+		
+		if (ddx != 0):
+			self.state = \
+				Mario.LEFT_RUN if dx < 0 else \
+				Mario.RIGHT_RUN if dx > 0 else \
+				Mario.LEFT_IDLE if ddx > 0 else Mario.RIGHT_IDLE
+
+		if (ddy != 0):
+			self.state = Mario.CLIMB
+
+		self.delta = dx, dy
 
 	def handle_event(self, event):
 		pair = (event.type, event.key)
 
 		if pair in Mario.KEY_MAP:
-			dx, dy, self.state = Mario.KEY_MAP[pair]
-			self.dx += dx
-			self.dy += dy
+			self.update_delta(*Mario.KEY_MAP[pair])
 		elif (pair == Mario.KEY_SPACE):
-			self.y += 50
+			pass
