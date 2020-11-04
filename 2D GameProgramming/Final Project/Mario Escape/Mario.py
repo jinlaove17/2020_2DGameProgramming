@@ -1,5 +1,7 @@
 from pico2d import *
 import GameFramework
+import GameObject
+import GameState
 
 class Mario:
 	# State
@@ -49,7 +51,7 @@ class Mario:
 	]
 
 	def __init__(self):
-		self.pos = (100, 130)
+		self.pos = (100, 140)
 		self.delta = (0, 0)
 		self.fidx = 0
 		self.time = 0
@@ -68,19 +70,33 @@ class Mario:
 		
 	def update_delta(self, ddx, ddy):
 		dx, dy = self.delta
-		dx += 3 * ddx
-		dy += 3 * ddy
-		
+						
 		if (ddx != 0):
+			dx += 3 * ddx
 			self.state = \
 				Mario.LEFT_RUN if dx < 0 else \
 				Mario.RIGHT_RUN if dx > 0 else \
 				Mario.LEFT_IDLE if ddx > 0 else Mario.RIGHT_IDLE
 
-		if (ddy != 0):
-			self.state = Mario.CLIMB
+		for object in GameState.interact_object:
+			if GameObject.collides_box(self, object):
+				if (ddy != 0 ):
+					dy += 3 * ddy
+					self.state = Mario.CLIMB
+					print("Climb ladder")
 
 		self.delta = dx, dy
+
+	def get_bb(self):
+		x, y = self.pos
+		w, h = (Mario.IMAGE_RECT[self.state][self.fidx][2] // 2, Mario.IMAGE_RECT[self.state][self.fidx][3] // 2)
+
+		left = x - w
+		bottom = y - h
+		right = x + w
+		top = y + h
+
+		return (left, bottom, right, top)
 
 	def handle_event(self, event):
 		pair = (event.type, event.key)
