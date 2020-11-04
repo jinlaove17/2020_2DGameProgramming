@@ -15,8 +15,8 @@ def update():
 		for object in layer_objects:
 			object.update()
 
-	counts = list(map(len, objects))
-	print("total object count =", counts)
+	#counts = list(map(len, objects))
+	#print("total object count =", counts)
 
 	if (len(trashcan) > 0):
 		empty_trashcan()
