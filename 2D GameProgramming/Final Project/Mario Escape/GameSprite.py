@@ -31,3 +31,14 @@ class Sprite:
 
 	def update(self):
 		pass
+
+	def get_bb(self):
+		x, y = self.pos
+		w, h = self.size
+
+		left = x
+		bottom = y
+		right =  x + w
+		top =  y + h
+
+		return (left, bottom, right, top)
