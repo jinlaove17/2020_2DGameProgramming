@@ -1,6 +1,6 @@
 [
   {
-    "name": "tile1_all",
+    "name": "tile1_right",
     "layer_index": 0,
     "x": 0,
     "y": 0,
@@ -8,7 +8,7 @@
     "h": 100
   },
   {
-    "name": "tile1_all",
+    "name": "tile1_left",
     "layer_index": 0,
     "x": 400,
     "y": 0,
