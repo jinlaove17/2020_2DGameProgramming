@@ -3,6 +3,7 @@ import GameFramework
 import GameObject
 import GameState
 import GameWorld
+import Image
 
 class Mario:
 	GRAVITY = 3000
@@ -68,7 +69,7 @@ class Mario:
 		self.prev_state = None
 		self.state = Mario.RIGHT_IDLE
 		self.FPS = 7
-		self.image = load_image("image/Mario.png")
+		self.image = Image.load("image/Mario.png")
 
 	def draw(self):
 		self.fidx = int(self.time * self.FPS) % len(Mario.IMAGE_RECT[self.state])
