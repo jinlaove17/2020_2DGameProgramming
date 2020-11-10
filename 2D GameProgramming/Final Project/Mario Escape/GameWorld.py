@@ -1,7 +1,7 @@
 from pico2d import *
 import GameFramework
 
-objects = [[], [], [], []] # Tile, Coin, Ladder, Mario
+objects = [[], [], [], []] # Platform, Coin, Obstacle, Mario
 trashcan = []
 
 def add(layer_index, object):
