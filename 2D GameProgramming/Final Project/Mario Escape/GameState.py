@@ -10,22 +10,29 @@ stage_level = None # 스테이트 전환시 level을 변경해가며 enter()를 
 interact_object = []
 
 def enter():
-	global mario, tile1, tile2, ladder
+	global mario
 
 	mario = Mario()
 	GameWorld.add(3, mario)
 	
+	GameSprite.load()
+
 	with open("JSON/Stage_1.json") as file:
 		data = json.load(file)
 
 	for info in data:
-		object = GameSprite.Sprite(info["name"], info["x"], info["y"], info["w"], info["h"])
+		if ("Tile" in info["name"]):
+			object = GameSprite.Platform(info["name"], info["x"], info["y"], info["w"], info["h"])
+		elif ("Ladder" in info["name"]):
+			object = GameSprite.Platform(info["name"], info["x"], info["y"], info["w"], info["h"])
+			if "Ladder" in info["name"]:
+				interact_object.append(object)
+		elif ("Coin" in info["name"]):
+			object = GameSprite.Coin(info["name"], info["x"], info["y"], info["w"], info["h"])
+		elif ("Obstacle" in info["name"]):
+			object = GameSprite.Sprite(info["name"], info["x"], info["y"], info["w"], info["h"])
+
 		GameWorld.add(info["layer_index"], object)
-
-		if "ladder" in info["name"]:
-			interact_object.append(object)
-
-	print(interact_object)
 
 def update():
 	GameWorld.update()
@@ -42,7 +49,7 @@ def draw():
 	GameObject.draw_collision_box()
 
 def handle_event(event):
-	global running
+	global mario, running
 
 	if (event.type == SDL_QUIT):
 		GameFramework.quit()
