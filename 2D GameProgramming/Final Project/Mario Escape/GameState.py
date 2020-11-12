@@ -6,50 +6,35 @@ import GameSprite
 import GameObject
 import json
 
-stage_level = None # 스테이트 전환시 level을 변경해가며 enter()를 다시 호출(나중에 사용함)
-interact_object = []
+stage_level = 0 # 스테이트 전환시 level을 변경해가며 enter()를 다시 호출(나중에 사용함)
 
 def enter():
 	global mario
 
 	mario = Mario()
 	GameWorld.add(3, mario)
-	
 	GameSprite.load()
+	load_stage(1)
 
-	with open("JSON/Stage_1.json") as file:
-		data = json.load(file)
-
-	for info in data:
-		if ("Tile" in info["name"]):
-			object = GameSprite.Platform(info["name"], info["x"], info["y"], info["w"], info["h"])
-		elif ("Ladder" in info["name"]):
-			object = GameSprite.Platform(info["name"], info["x"], info["y"], info["w"], info["h"])
-			if "Ladder" in info["name"]:
-				interact_object.append(object)
-		elif ("Coin" in info["name"]):
-			object = GameSprite.Coin(info["name"], info["x"], info["y"], info["w"], info["h"])
-		elif ("Obstacle" in info["name"]):
-			object = GameSprite.Sprite(info["name"], info["x"], info["y"], info["w"], info["h"])
-
-		GameWorld.add(info["layer_index"], object)
 
 def update():
+	global mario
+
 	GameWorld.update()
 
-	for layer_objects in GameWorld.objects:
-		for object in layer_objects:
-			if(object != mario):
-				if GameObject.collides_box(mario, object):
-					#print("Player Collision", object.name)
-					pass
+	for object in GameWorld.objects_at(1):
+		if GameObject.collides_box(mario, object):
+			print("====================")
+			print(object)
+			GameWorld.remove(object)
+
 
 def draw():
 	GameWorld.draw()
 	GameObject.draw_collision_box()
 
 def handle_event(event):
-	global mario, running
+	global mario
 
 	if (event.type == SDL_QUIT):
 		GameFramework.quit()
@@ -66,6 +51,23 @@ def pause():
 
 def resume():
 	pass
+
+def load_stage(level):
+	with open("JSON/Stage_%d.json" % level) as file:
+		data = json.load(file)
+
+	for info in data:
+		if ("Tile" in info["name"]):
+			object = GameSprite.Platform(info["name"], info["x"], info["y"], info["w"], info["h"])
+		elif ("Ladder" in info["name"]):
+			object = GameSprite.Platform(info["name"], info["x"], info["y"], info["w"], info["h"])
+		elif ("Coin" in info["name"]):
+			object = GameSprite.Coin(info["name"], info["x"], info["y"], info["w"], info["h"])
+		elif ("Obstacle" in info["name"]):
+			object = GameSprite.Obstacle(info["name"], info["x"], info["y"], info["w"], info["h"])
+			
+		print(object)
+		GameWorld.add(info["layer_index"], object)
 
 if (__name__ == "__main__"):
 	GameFramework.run_main()
