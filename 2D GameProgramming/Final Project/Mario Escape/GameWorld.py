@@ -10,10 +10,22 @@ def add(layer_index, object):
 def remove(object):
 	trashcan.append(object)
 
+def all_objects():
+    for layer_objects in objects:
+        for object in layer_objects:
+            yield object
+
+def object(layer_index, object_index):
+    layer_objects = objects[layer_index]
+    return layer_objects[object_index]
+
+def objects_at(layer_index):
+    for object in objects[layer_index]:
+        yield object
+
 def update():
-	for layer_objects in objects:
-		for object in layer_objects:
-			object.update()
+	for object in all_objects():
+		object.update()
 
 	#counts = list(map(len, objects))
 	#print("total object count =", counts)
@@ -22,9 +34,8 @@ def update():
 		empty_trashcan()
 
 def draw():
-	for layer_objects in objects:
-		for object in layer_objects:
-			object.draw()
+	for object in all_objects():
+		object.draw()
 
 def empty_trashcan():
 	global trashcan
