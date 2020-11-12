@@ -13,7 +13,6 @@ def collides_box(a, b):
 	return True
 
 def draw_collision_box():
-	for layer_objects in GameWorld.objects:
-		for object in layer_objects:
+	for object in GameWorld.all_objects():
 			if hasattr(object, 'get_bb'):
 				draw_rectangle(*object.get_bb())
