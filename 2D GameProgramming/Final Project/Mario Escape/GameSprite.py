@@ -66,10 +66,12 @@ class Coin:
 
 	def get_bb(self):
 		x, y = self.pos
-		left = x - self.rect[2] // 2
-		bottom = y - self.rect[3] // 2
-		right = x + self.rect[2] // 2
-		top = y + self.rect[3] // 2
+		w, h = self.rect[2] // 2, self.rect[3] // 2
+
+		left = x - w
+		bottom = y - h
+		right = x + w
+		top = y + h
 
 		return (left, bottom, right, top)
 
