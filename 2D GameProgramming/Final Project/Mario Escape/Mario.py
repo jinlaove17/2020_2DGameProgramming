@@ -130,23 +130,26 @@ class Mario:
 
 		if (self.prev_state == None):
 			self.prev_state = self.state
-			
-		for object in GameState.interact_object:
-			if GameObject.collides_box(self, object):
-				_, bottom, _, top = object.get_bb()
-				_, foot, _, _ = self.get_bb()
-				
-				if (ddy > 0 and foot >= top) or (ddy < 0 and foot <= bottom): continue
-				dy += 3 * ddy
-				print(self.prev_state)
-				self.state = Mario.CLIMB
-				print("Climb ladder")
-				
-				if(foot + 20 >= top):
-					self.state = self.prev_state
-					self.prev_state = None
-					self.pos = (self.pos[0], foot + 50)
-					break
+
+		if (ddy != 0):
+			for object in GameWorld.objects[0]:
+				if "Ladder" in object.name:
+					if GameObject.collides_box(self, object):
+						(_, bottom, _, top) = object.get_bb()
+						(_, foot, _, _) = self.get_bb()
+						
+						if (ddy > 0 and foot >= top) or (ddy < 0 and foot <= bottom): continue
+						
+						dy += 3 * ddy
+						self.state = Mario.CLIMB
+						print(self.prev_state)
+						print("Climb ladder")
+						
+						if(foot >= top):
+							self.state = self.prev_state
+							self.prev_state = None
+							ddy = 0
+							break
 
 		self.delta = dx, dy
 
