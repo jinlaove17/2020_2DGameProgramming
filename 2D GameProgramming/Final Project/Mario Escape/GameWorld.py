@@ -1,14 +1,27 @@
 from pico2d import *
 import GameFramework
 
-objects = [[], [], [], []] # Platform, Coin, Obstacle, Mario
+objects = []
 trashcan = []
 
+def init(layer_names):
+    global objects
+    global layer
+
+    objects = []
+    layer = lambda: None
+    layerIndex = 0
+
+    for name in layer_names:
+        objects.append([])
+        layer.__dict__[name] = layerIndex
+        layerIndex += 1
+
 def add(layer_index, object):
-	objects[layer_index].append(object)
+    objects[layer_index].append(object)
 
 def remove(object):
-	trashcan.append(object)
+    trashcan.append(object)
 
 def all_objects():
     for layer_objects in objects:
@@ -38,7 +51,13 @@ def draw():
 		object.draw()
 
 def empty_trashcan():
-	global trashcan
+    global trashcan
 
-	for object in trashcan:
-		objects.remove(object)
+    for object in trashcan:
+        for layer_objects in objects:
+            try:
+                layer_objects.remove(object)
+            except ValueError:
+                pass
+
+    trashcan = []
