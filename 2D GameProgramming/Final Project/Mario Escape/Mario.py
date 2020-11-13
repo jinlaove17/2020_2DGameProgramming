@@ -62,14 +62,14 @@ class Mario:
 	]
 
 	def __init__(self):
-		self.pos = (100, 500)
+		self.pos = (100, 300)
 		self.delta = (0, 0)
 		self.fidx = 0
 		self.time = 0
 		self.prev_state = None
 		self.state = Mario.RIGHT_IDLE
 		self.FPS = 7
-		self.image = Image.load("image/Mario.png")
+		self.image = Image.load("IMAGE/Mario.png")
 
 	def draw(self):
 		self.fidx = int(self.time * self.FPS) % len(Mario.IMAGE_RECT[self.state])
@@ -100,9 +100,7 @@ class Mario:
 			elif (self.state == Mario.RIGHT_IDLE or self.state == Mario.RIGHT_RUN):
 				if (foot > top):
 					self.state = Mario.RIGHT_FALLING
-					self.falling_speed = 0
-			elif (self.state == Mario.CLIMB or self.state == Mario.DIE):
-				pass
+					self.falling_speed = 0	
 			elif (self.state == Mario.LEFT_FALLING or self.state == Mario.LEFT_JUMP):
 				if (self.falling_speed < 0 and int(foot) <= top):
 					x, y = self.pos
@@ -132,7 +130,7 @@ class Mario:
 			self.prev_state = self.state
 
 		if (ddy != 0):
-			for object in GameWorld.objects[0]:
+			for object in GameWorld.objects_at(GameWorld.layer.platform):
 				if "Ladder" in object.name:
 					if GameObject.collides_box(self, object):
 						(_, bottom, _, top) = object.get_bb()
@@ -142,14 +140,13 @@ class Mario:
 						
 						dy += 3 * ddy
 						self.state = Mario.CLIMB
-						print(self.prev_state)
-						print("Climb ladder")
+						#print("Climb ladder")
+						print(foot, top)
 						
-						if(foot >= top):
+						if (foot >= top):
 							self.state = self.prev_state
 							self.prev_state = None
 							ddy = 0
-							break
 
 		self.delta = dx, dy
 
@@ -177,7 +174,7 @@ class Mario:
 		select_top = 0
 		x, y = self.pos
 
-		for platform in GameWorld.objects[0]:
+		for platform in GameWorld.objects_at(GameWorld.layer.platform):
 			left, bottom, right, top = platform.get_bb()
 			if (x < left or x > right): continue
 			mid = (bottom + top) // 2
