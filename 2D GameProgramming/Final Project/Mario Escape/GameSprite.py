@@ -11,7 +11,7 @@ def load():
 	global sprite_image
 
 	if (sprite_image is None):
-		sprite_image = Image.load("Image/Sprite.png")
+		sprite_image = Image.load("IMAGE/Sprite.png")
 
 		with open("JSON/ObjectRect.json") as file:
 			data = json.load(file)
