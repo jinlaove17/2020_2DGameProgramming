@@ -154,9 +154,11 @@ class Mario:
 		if (self.state in [Mario.LEFT_IDLE, Mario.LEFT_RUN]):
 			self.state = Mario.LEFT_JUMP
 			self.falling_speed = Mario.JUMP
+			GameState.jump_wav.play()
 		elif (self.state in [Mario.RIGHT_IDLE, Mario.RIGHT_RUN]):
 			self.state = Mario.RIGHT_JUMP
 			self.falling_speed = Mario.JUMP
+			GameState.jump_wav.play()
 
 	def get_bb(self):
 		x, y = self.pos
