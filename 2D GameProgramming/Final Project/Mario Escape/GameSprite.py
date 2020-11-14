@@ -83,8 +83,13 @@ class Obstacle:
 		self.pos = (x, y)
 		self.size = (w, h)
 
+		if ("FireBar" in self.name):
+			self.radian = 0
+
 	def draw(self):
-		sprite_image.clip_draw_to_origin(*self.rect, *self.pos, *self.size)
+		if ("FireBar" in self.name):
+			self.radian += GameFramework.delta_time
+			sprite_image.clip_composite_draw(*self.rect, self.radian, ' ', *self.pos, *self.size)
 
 	def update(self):
 		pass
@@ -93,9 +98,9 @@ class Obstacle:
 		x, y = self.pos
 		w, h = self.size
 
-		left = x
-		bottom = y
-		right =  x + w
-		top =  y + h
+		left = x - w // 2
+		bottom = y - h // 2
+		right = x + w // 2
+		top = y + h // 2
 
 		return (left, bottom, right, top)
