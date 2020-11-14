@@ -7,20 +7,20 @@ stage2_objects = []
 trashcan = []
 
 def init(layer_names):
-    global curr_objects, stage1_objects, stage2_objects
+    global stage1_objects, stage2_objects
     global layer
 
-    curr_objects = []
     layer = lambda: None
     layerIndex = 0
 
     for name in layer_names:
-        curr_objects.append([])
+        stage1_objects.append([])
+        stage2_objects.append([])
         layer.__dict__[name] = layerIndex
         layerIndex += 1
 
-    stage1_objects = curr_objects
-    stage2_objects = curr_objects
+    print(stage1_objects)
+    print(stage2_objects)
 
 def add(stage_level, layer_index, object):
     if (stage_level == 1):
