@@ -8,6 +8,7 @@ import GameObject
 import json
 
 stage_level = None
+prev_stage, next_stage = range(2)
 
 def enter():
 	GameWorld.init(["background", "platform", "coin", "obstacle", "mario"])
@@ -52,7 +53,7 @@ def load_stage():
 	mario = Mario()
 	background = Background()
 
-	for level in range(1, 3):
+	for level in range(1, 3 + 1):
 		with open("JSON/Stage_%d.json" % level) as file:
 			data = json.load(file)
 
@@ -67,7 +68,8 @@ def load_stage():
 					object = GameSprite.Obstacle(info["name"], info["x"], info["y"], info["w"], info["h"])
 
 				GameWorld.add(level, info["layer_index"], object)
-				
+		
+		print(GameWorld.stage3_objects)
 		GameWorld.add(level, GameWorld.layer.mario, mario)
 		GameWorld.add(level, GameWorld.layer.background, background)
 			
@@ -94,31 +96,43 @@ def check_coin():
 def check_obstacle():
 	for obstacle in GameWorld.objects_at(GameWorld.layer.obstacle):
 		if GameObject.collides_box(mario, obstacle):
-			GameWorld.remove(obstacle)
+			pass
+
+def set_mario_pos(stage):
+	global mario
+	
+	x, y = mario.pos
+
+	if (stage == prev_stage):
+		x = get_canvas_width() - Mario.IMAGE_RECT[mario.state][mario.fidx][2] // 2
+	elif (stage == next_stage):
+		x = Mario.IMAGE_RECT[mario.state][mario.fidx][2] // 2
+
+	mario.pos = x, y
+
 
 def change_stage():
 	global stage_level, mario, background
 
 	if (stage_level == 1):
 		if (mario.pos[0] < Mario.IMAGE_RECT[mario.state][mario.fidx][2] // 2):
-			x, y = mario.pos
-			x =  Mario.IMAGE_RECT[mario.state][mario.fidx][2] // 2
-			mario.pos = x, y
+			set_mario_pos(next_stage)
 		elif (mario.pos[0] >= get_canvas_width() - Mario.IMAGE_RECT[mario.state][mario.fidx][2] // 2):
 			stage_level += 1
-			x, y = mario.pos
-			x = mario.pos = Mario.IMAGE_RECT[mario.state][mario.fidx][2] // 2
-			mario.pos = x, y
+			set_mario_pos(next_stage)
 			background.set_rect(150)
 			GameWorld.curr_objects = GameWorld.stage2_objects
 	elif (stage_level == 2):
 		if (mario.pos[0] < Mario.IMAGE_RECT[mario.state][mario.fidx][2] // 2):
 			stage_level -= 1
-			x, y = mario.pos
-			x = get_canvas_width() - Mario.IMAGE_RECT[mario.state][mario.fidx][2] // 2
-			mario.pos = x, y
+			set_mario_pos(prev_stage)
 			background.set_rect(0)
 			GameWorld.curr_objects = GameWorld.stage1_objects
+		elif (mario.pos[0] >= get_canvas_width() - Mario.IMAGE_RECT[mario.state][mario.fidx][2] // 2):
+			stage_level += 1
+			set_mario_pos(next_stage)
+			background.set_rect(250)
+			GameWorld.curr_objects = GameWorld.stage3_objects
 
 if (__name__ == "__main__"):
 	GameFramework.run_main()
