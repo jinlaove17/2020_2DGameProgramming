@@ -89,7 +89,6 @@ class Mario:
 
 		_, foot, _, _ = self.get_bb()
 		platform = self.get_platform(foot)
-		print(foot)
 
 		if (platform != None):
 			left, bottom, right, top = platform.get_bb()
