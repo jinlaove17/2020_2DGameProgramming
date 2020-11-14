@@ -12,3 +12,8 @@ class Background:
 
     def update(self):
         pass
+
+    def set_rect(self, x):
+        self.cw, self.ch = get_canvas_width(), get_canvas_height()
+        cw, ch = self.cw, self.ch
+        self.rect = x, 0, cw, ch
