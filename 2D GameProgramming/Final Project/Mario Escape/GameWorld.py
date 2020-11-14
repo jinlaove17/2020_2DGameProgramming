@@ -4,10 +4,11 @@ import GameFramework
 curr_objects = []
 stage1_objects = []
 stage2_objects = []
+stage3_objects = []
 trashcan = []
 
 def init(layer_names):
-    global stage1_objects, stage2_objects
+    global stage1_objects, stage2_objects, stage3_objects
     global layer
 
     layer = lambda: None
@@ -16,17 +17,17 @@ def init(layer_names):
     for name in layer_names:
         stage1_objects.append([])
         stage2_objects.append([])
+        stage3_objects.append([])
         layer.__dict__[name] = layerIndex
         layerIndex += 1
-
-    print(stage1_objects)
-    print(stage2_objects)
 
 def add(stage_level, layer_index, object):
     if (stage_level == 1):
         stage1_objects[layer_index].append(object)
     elif (stage_level == 2):
         stage2_objects[layer_index].append(object)
+    elif (stage_level == 3):
+        stage3_objects[layer_index].append(object)
 
 def remove(object):
     trashcan.append(object)
