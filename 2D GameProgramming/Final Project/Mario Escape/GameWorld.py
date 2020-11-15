@@ -2,12 +2,25 @@ from pico2d import *
 import GameFramework
 
 curr_objects = []
+title_objects = []
 stage1_objects = []
 stage2_objects = []
 stage3_objects = []
 trashcan = []
 
-def init(layer_names):
+def title_init(layer_names):
+    global title_objects
+    global layer
+
+    layer = lambda: None
+    layerIndex = 0
+
+    for name in layer_names:
+        title_objects.append([])
+        layer.__dict__[name] = layerIndex
+        layerIndex += 1
+
+def game_init(layer_names):
     global stage1_objects, stage2_objects, stage3_objects
     global layer
 
@@ -21,13 +34,15 @@ def init(layer_names):
         layer.__dict__[name] = layerIndex
         layerIndex += 1
 
-def add(stage_level, layer_index, object):
+def add(layer_index, object, stage_level=None):
     if (stage_level == 1):
         stage1_objects[layer_index].append(object)
     elif (stage_level == 2):
         stage2_objects[layer_index].append(object)
     elif (stage_level == 3):
         stage3_objects[layer_index].append(object)
+    else:
+        title_objects[layer_index].append(object)
 
 def remove(object):
     trashcan.append(object)

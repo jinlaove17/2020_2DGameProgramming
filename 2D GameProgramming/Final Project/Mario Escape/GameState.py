@@ -11,7 +11,7 @@ stage_level = None
 prev_stage, next_stage = range(2)
 
 def enter():
-	GameWorld.init(["background", "platform", "coin", "obstacle", "mario"])
+	GameWorld.game_init(["background", "platform", "coin", "obstacle", "mario"])
 	GameSprite.load()
 
 	load_sound()
@@ -35,6 +35,7 @@ def handle_event(event):
 		GameFramework.quit()
 	elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
 		GameFramework.pop()
+		GameWorld.current_objects = GameWorld.title_objects
 
 	mario.handle_event(event)
 
@@ -51,7 +52,7 @@ def load_stage():
 	global stage_level, mario, background
 	stage_level = 1
 	mario = Mario()
-	background = Background()
+	background = Background("IMAGE/background.png")
 
 	for level in range(1, 3 + 1):
 		with open("JSON/Stage_%d.json" % level) as file:
@@ -67,11 +68,11 @@ def load_stage():
 				elif ("Obstacle" in info["name"]):
 					object = GameSprite.Obstacle(info["name"], info["x"], info["y"], info["w"], info["h"])
 
-				GameWorld.add(level, info["layer_index"], object)
+				GameWorld.add(info["layer_index"], object, level)
 		
 		print(GameWorld.stage3_objects)
-		GameWorld.add(level, GameWorld.layer.mario, mario)
-		GameWorld.add(level, GameWorld.layer.background, background)
+		GameWorld.add(GameWorld.layer.mario, mario, level)
+		GameWorld.add(GameWorld.layer.background, background, level)
 			
 	GameWorld.curr_objects = GameWorld.stage1_objects
 
