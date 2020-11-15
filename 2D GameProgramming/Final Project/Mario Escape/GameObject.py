@@ -16,3 +16,17 @@ def draw_collision_box():
 	for object in GameWorld.all_objects():
 			if hasattr(object, 'get_bb'):
 				draw_rectangle(*object.get_bb())
+
+def get_pico2d_pos(event):
+    return (event.x, get_canvas_height() - event.y - 1)
+
+def point_in_rect(point, rect):
+    (x, y) = point
+    (l, b, r, t) = rect
+
+    if x < l: return False
+    if x > r: return False
+    if y < b: return False
+    if y > t: return False
+
+    return True
