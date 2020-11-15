@@ -1,31 +1,75 @@
 from pico2d import *
+from Background import *
+from Button import *
 import GameFramework
 import GameState
+import GameWorld
+
+capture = None
 
 def enter():
-	global background
+	GameWorld.title_init(["background", "ui"])
 
-	background = load_image("Image/Title.png")
+	background = Background("Image/Title.png")
+	background.set_rect(250, 80)
+	GameWorld.add(GameWorld.layer.background, background)
+
+	start_button = Button(180, 620, 300, Button.GAME_START)
+	GameWorld.add(GameWorld.layer.ui, start_button)
+
+	des_button = Button(90, 620, 200, Button.DESCRIPTION)
+	GameWorld.add(GameWorld.layer.ui, des_button)
+
+	exit_button = Button(0, 620, 100, Button.EXIT)
+	GameWorld.add(GameWorld.layer.ui, exit_button)
+
+	GameWorld.curr_objects = GameWorld.title_objects
+
+	load_sound()
 
 def update():
-	pass
+	GameWorld.update()
 
 def draw():
-	background.draw(400, 300)
+	GameWorld.draw()
 
 def handle_event(event):
 	global running
 
 	if (event.type == SDL_QUIT):
 		GameFramework.quit()
-	elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
-		GameFramework.quit()
-	elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_SPACE):
-		GameFramework.push(GameState)
+
+	if (handle_mouse(event)):
+		return
+
+def load_sound():
+	global select_wav, move_wav
+
+	select_wav = load_wav("SOUND/game start.wav")
+	move_wav = load_wav("SOUND/stomp.wav")
+	
+
+def handle_mouse(event):
+	global capture
+
+	if (capture != None):
+		holding = capture.handle_event(event)
+
+		if (not holding):
+			capture = None
+		
+		return True
+
+	for object in GameWorld.objects_at(GameWorld.layer.ui):
+		if (object.handle_event(event)):
+			capture = object
+
+			return True
+
+	return False
 
 def exit():
-	global background
-	del background
+	pass
 
 def pause():
 	pass
