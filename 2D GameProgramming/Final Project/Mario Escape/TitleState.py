@@ -45,7 +45,7 @@ def handle_event(event):
 def load_sound():
 	global bgm, select_wav, move_wav
 
-	bgm = load_music("SOUND/game on boy.mp3")
+	bgm = load_music("SOUND/title theme.mp3")
 	select_wav = load_wav("SOUND/game start.wav")
 	move_wav = load_wav("SOUND/stomp.wav")
 
