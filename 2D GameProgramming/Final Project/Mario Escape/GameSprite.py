@@ -1,4 +1,5 @@
 from pico2d import *
+from math import *
 import GameFramework
 import Image
 import json
@@ -17,7 +18,7 @@ def load():
 			data = json.load(file)
 
 			for name in data:
-				print(name)
+				#print(name)
 				sprite_rects[name] = tuple(data[name])
 
 	for num in range(1, 6 + 1):
@@ -82,14 +83,29 @@ class Obstacle:
 		self.rect = sprite_rects[name]
 		self.pos = (x, y)
 		self.size = (w, h)
+		self.rad = 0
+		self.radius = 0
+		self.radian = 0
 
 		if ("FireBar" in self.name):
-			self.radian = 0
+			if ("FireBar_1" in self.name):
+				self.radius = 280
+				self.radian = pi
+			elif ("FireBar_2" in self.name):
+				self.radius = 140
+				self.radian = pi
+			elif ("FireBar_4" in self.name):
+				self.radius = 140
+				self.radian = 0
+			elif ("FireBar_5" in self.name):
+				self.radius = 280
+				self.radian = 0
 
 	def draw(self):
-		if ("FireBar" in self.name):
-			self.radian += GameFramework.delta_time
-			sprite_image.clip_composite_draw(*self.rect, self.radian, ' ', *self.pos, *self.size)
+		self.rad += GameFramework.delta_time
+		self.radian += GameFramework.delta_time
+		self.pos = (400 + self.radius * cos(self.radian), 250 + self.radius * sin(self.radian))
+		sprite_image.clip_composite_draw(*self.rect, self.rad, ' ', *self.pos, *self.size)
 
 	def update(self):
 		pass
