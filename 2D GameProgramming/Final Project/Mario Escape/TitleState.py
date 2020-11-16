@@ -43,10 +43,14 @@ def handle_event(event):
 		return
 
 def load_sound():
-	global select_wav, move_wav
+	global bgm, select_wav, move_wav
 
+	bgm = load_music("SOUND/game on boy.mp3")
 	select_wav = load_wav("SOUND/game start.wav")
 	move_wav = load_wav("SOUND/stomp.wav")
+
+	bgm.set_volume(100)
+	bgm.repeat_play()
 	
 
 def handle_mouse(event):
