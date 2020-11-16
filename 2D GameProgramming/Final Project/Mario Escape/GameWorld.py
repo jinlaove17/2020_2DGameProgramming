@@ -85,3 +85,28 @@ def empty_trashcan():
                 pass
 
     trashcan = []
+
+def clear():
+    global curr_objects, title_objects, stage1_objects, stage2_objects, stage3_objects
+
+    curr_objects = stage1_objects
+    for object in all_objects():
+        del object
+
+    curr_objects = stage2_objects
+    for object in all_objects():
+        del object
+
+    curr_objects = stage3_objects
+    for object in all_objects():
+        del object
+
+    curr_objects = title_objects
+    for object in all_objects():
+        del object
+
+    curr_objects = []
+    title_objects = []
+    stage1_objects = []
+    stage2_objects = []
+    stage3_objects = []
