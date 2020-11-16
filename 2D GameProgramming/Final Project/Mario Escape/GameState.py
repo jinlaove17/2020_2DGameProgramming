@@ -5,6 +5,7 @@ import GameFramework
 import GameWorld
 import GameSprite
 import GameObject
+import TitleState
 import json
 
 stage_level = None
@@ -34,8 +35,9 @@ def handle_event(event):
 	if (event.type == SDL_QUIT):
 		GameFramework.quit()
 	elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
-		GameFramework.pop()
-		GameWorld.current_objects = GameWorld.title_objects
+		bgm.stop()
+		GameWorld.clear()
+		GameFramework.change(TitleState)
 
 	mario.handle_event(event)
 
@@ -70,7 +72,6 @@ def load_stage():
 
 				GameWorld.add(info["layer_index"], object, level)
 		
-		print(GameWorld.stage3_objects)
 		GameWorld.add(GameWorld.layer.mario, mario, level)
 		GameWorld.add(GameWorld.layer.background, background, level)
 			
@@ -134,6 +135,12 @@ def change_stage():
 			set_mario_pos(next_stage)
 			background.set_rect(250)
 			GameWorld.curr_objects = GameWorld.stage3_objects
+	elif (stage_level == 3):
+		if (mario.pos[0] < Mario.IMAGE_RECT[mario.state][mario.fidx][2] // 2):
+			stage_level -= 1
+			set_mario_pos(prev_stage)
+			background.set_rect(150)
+			GameWorld.curr_objects = GameWorld.stage2_objects
 
 if (__name__ == "__main__"):
 	GameFramework.run_main()
