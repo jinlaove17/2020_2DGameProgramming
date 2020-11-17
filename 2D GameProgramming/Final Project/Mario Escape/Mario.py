@@ -8,18 +8,7 @@ import Image
 class Mario:
 	GRAVITY = 3000
 	JUMP = 900
-
-	# State
-	LEFT_IDLE = 0
-	RIGHT_IDLE = 1
-	LEFT_RUN = 2
-	RIGHT_RUN = 3
-	LEFT_JUMP = 4
-	RIGHT_JUMP = 5
-	LEFT_FALLING = 6
-	RIGHT_FALLING = 7
-	CLIMB = 8
-	DIE = 9
+	LEFT_IDLE, RIGHT_IDLE, LEFT_RUN, RIGHT_RUN, LEFT_JUMP, RIGHT_JUMP, LEFT_FALLING, RIGHT_FALLING, CLIMB, DIE = range(10)
 
 	KEY_MAP = {
 		(SDL_KEYDOWN, SDLK_UP):    ( 0,  1),
@@ -51,14 +40,14 @@ class Mario:
 		[ (473, 141, 50, 76), (617, 141, 50, 76), (758, 141, 50, 76) ],
 
 		# Left Falling
-		[ (609, 0, 50, 76), (609, 0, 50 ,76), (609, 0, 50, 76) ],
+		[ (609, 0, 50, 76) ],
 		# Right Falling
-		[ (757, 0, 50, 76), (757, 0, 50 ,76), (757, 0, 50, 76) ],
+		[ (757, 0, 50, 76) ],
 
 		# Climb
-		[ (49, 0, 46, 76), (193, 0, 42, 76), (49, 0, 46, 76) ],
+		[ (49, 0, 46, 76), (193, 0, 42, 76) ],
 		# Die
-		[ (327, 0, 56 ,76), (467, 0, 56, 76), (327, 0, 56, 76) ]
+		[ (327, 0, 56 ,76), (467, 0, 56, 76) ]
 	]
 
 	def __init__(self):
@@ -136,17 +125,19 @@ class Mario:
 						(_, bottom, _, top) = object.get_bb()
 						(_, foot, _, _) = self.get_bb()
 						
-						if (ddy > 0 and foot >= top) or (ddy < 0 and foot <= bottom): continue
-						
+						print("[Foot] : ", foot, ", [Top] : ", top)
+						if (ddy > 0 and foot >= top): break
+						if (ddy < 0 and foot <= bottom): break
+						# 위의 조건식을 써도 KEY_DOWN일 때는 문제가 되지 않는데, KEY_UP이 일어나면서 문제 발생
+
 						dy += 3 * ddy
 						self.state = Mario.CLIMB
-						#print("Climb ladder")
-						print(foot, top)
-						
-						if (foot >= top):
+
+						if (foot + dy >= top):
 							self.state = self.prev_state
 							self.prev_state = None
 							ddy = 0
+							break
 
 		self.delta = dx, dy
 
@@ -162,7 +153,7 @@ class Mario:
 
 	def get_bb(self):
 		x, y = self.pos
-		w, h = (Mario.IMAGE_RECT[self.state][self.fidx][2] // 2, Mario.IMAGE_RECT[self.state][self.fidx][3] // 2)
+		w, h = (Mario.IMAGE_RECT[self.state][self.fidx % len(Mario.IMAGE_RECT[self.state])][2] // 2, Mario.IMAGE_RECT[self.state][self.fidx % len(Mario.IMAGE_RECT[self.state])][3] // 2)
 
 		left = x - w
 		bottom = y - h
@@ -179,8 +170,7 @@ class Mario:
 		for platform in GameWorld.objects_at(GameWorld.layer.platform):
 			left, bottom, right, top = platform.get_bb()
 			if (x < left or x > right): continue
-			mid = (bottom + top) // 2
-			if (foot < mid): continue
+			if (foot < top - 20): continue
 			if (selected == None):
 				selected = platform
 				select_top = top
