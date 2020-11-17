@@ -116,27 +116,29 @@ def set_mario_pos(stage):
 def change_stage():
 	global stage_level, mario, background
 
+	hw = Mario.IMAGE_RECT[mario.state][mario.fidx % len(Mario.IMAGE_RECT[mario.state])][2] // 2
+
 	if (stage_level == 1):
-		if (mario.pos[0] < Mario.IMAGE_RECT[mario.state][mario.fidx][2] // 2):
+		if (mario.pos[0] < hw):
 			set_mario_pos(next_stage)
-		elif (mario.pos[0] >= get_canvas_width() - Mario.IMAGE_RECT[mario.state][mario.fidx][2] // 2):
+		elif (mario.pos[0] >= get_canvas_width() - hw):
 			stage_level += 1
 			set_mario_pos(next_stage)
 			background.set_rect(150)
 			GameWorld.curr_objects = GameWorld.stage2_objects
 	elif (stage_level == 2):
-		if (mario.pos[0] < Mario.IMAGE_RECT[mario.state][mario.fidx][2] // 2):
+		if (mario.pos[0] < hw):
 			stage_level -= 1
 			set_mario_pos(prev_stage)
 			background.set_rect(0)
 			GameWorld.curr_objects = GameWorld.stage1_objects
-		elif (mario.pos[0] >= get_canvas_width() - Mario.IMAGE_RECT[mario.state][mario.fidx][2] // 2):
+		elif (mario.pos[0] >= get_canvas_width() - hw):
 			stage_level += 1
 			set_mario_pos(next_stage)
 			background.set_rect(250)
 			GameWorld.curr_objects = GameWorld.stage3_objects
 	elif (stage_level == 3):
-		if (mario.pos[0] < Mario.IMAGE_RECT[mario.state][mario.fidx][2] // 2):
+		if (mario.pos[0] < hw):
 			stage_level -= 1
 			set_mario_pos(prev_stage)
 			background.set_rect(150)
