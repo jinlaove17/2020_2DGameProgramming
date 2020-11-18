@@ -59,6 +59,7 @@ class Mario:
 		self.state = Mario.RIGHT_IDLE
 		self.FPS = 7
 		self.image = Image.load("IMAGE/Mario.png")
+		self.is_collide = False
 
 	def draw(self):
 		self.fidx = int(self.time * self.FPS) % len(Mario.IMAGE_RECT[self.state])
@@ -69,6 +70,7 @@ class Mario:
 		dx, dy = self.delta
 		self.pos = x + dx, y + dy
 		self.time += GameFramework.delta_time
+		self.die()
 
 		if (self.state in [Mario.LEFT_JUMP, Mario.RIGHT_JUMP, Mario.LEFT_FALLING, Mario.RIGHT_FALLING]):
 			x, y = self.pos
@@ -106,40 +108,41 @@ class Mario:
 					self.falling_speed = 0
 
 	def update_delta(self, ddx, ddy):
-		dx, dy = self.delta
-	
-		if (ddx != 0):
-			dx += 3 * ddx
-			self.state = \
-				Mario.LEFT_RUN if dx < 0 else \
-				Mario.RIGHT_RUN if dx > 0 else \
-				Mario.LEFT_IDLE if ddx > 0 else Mario.RIGHT_IDLE
+		if (self.state != Mario.DIE):
+			dx, dy = self.delta
+			
+			if (ddx != 0):
+				dx += 3 * ddx
+				self.state = \
+					Mario.LEFT_RUN if dx < 0 else \
+					Mario.RIGHT_RUN if dx > 0 else \
+					Mario.LEFT_IDLE if ddx > 0 else Mario.RIGHT_IDLE
+				
+			if (self.prev_state == None):
+				self.prev_state = self.state
+				
+			if (ddy != 0):
+				for object in GameWorld.objects_at(GameWorld.layer.platform):
+					if "Ladder" in object.name:
+						if GameObject.collides_box(self, object):
+							(_, bottom, _, top) = object.get_bb()
+							(_, foot, _, _) = self.get_bb()
+							print("[Foot] : ", foot, ", [Top] : ", top)
 
-		if (self.prev_state == None):
-			self.prev_state = self.state
-
-		if (ddy != 0):
-			for object in GameWorld.objects_at(GameWorld.layer.platform):
-				if "Ladder" in object.name:
-					if GameObject.collides_box(self, object):
-						(_, bottom, _, top) = object.get_bb()
-						(_, foot, _, _) = self.get_bb()
-						
-						print("[Foot] : ", foot, ", [Top] : ", top)
-						if (ddy > 0 and foot >= top): break
-						if (ddy < 0 and foot <= bottom): break
-						# 위의 조건식을 써도 KEY_DOWN일 때는 문제가 되지 않는데, KEY_UP이 일어나면서 문제 발생
-
-						dy += 3 * ddy
-						self.state = Mario.CLIMB
-
-						if (foot + dy >= top):
-							self.state = self.prev_state
-							self.prev_state = None
-							ddy = 0
-							break
-
-		self.delta = dx, dy
+							if (ddy > 0 and foot >= top): break
+							if (ddy < 0 and foot <= bottom): break
+							# 위의 조건식을 써도 KEY_DOWN일 때는 문제가 되지 않는데, KEY_UP이 일어나면서 문제 발생
+							
+							dy += 3 * ddy
+							self.state = Mario.CLIMB
+							
+							if (foot + dy >= top):
+								self.state = self.prev_state
+								self.prev_state = None
+								ddy = 0
+								break
+							
+			self.delta = dx, dy
 
 	def jump(self):
 		if (self.state in [Mario.LEFT_IDLE, Mario.LEFT_RUN]):
@@ -150,6 +153,41 @@ class Mario:
 			self.state = Mario.RIGHT_JUMP
 			self.falling_speed = Mario.JUMP
 			GameState.jump_wav.play()
+
+	def die(self):
+		x, y = self.pos
+		h = Mario.IMAGE_RECT[self.state][self.fidx % len(Mario.IMAGE_RECT[self.state])][3] // 2
+
+		if (self.state != Mario.DIE):
+			if (y + h <= 0):
+				y += 200
+				self.pos = x, y
+				self.state = Mario.DIE
+				self.falling_speed = 0
+				GameState.life_lost_wav.play()
+			elif (self.is_collide):
+				y += 50
+				self.pos = x, y
+				self.state = Mario.DIE
+				self.falling_speed = 0
+				GameState.life_lost_wav.play()
+		else:
+			x, y = self.pos
+			y = y + self.falling_speed * GameFramework.delta_time
+			self.pos = x, y
+			self.delta = (0, 0)
+			self.falling_speed -= Mario.GRAVITY * GameFramework.delta_time // 15
+
+			if (y + h <= 0):
+				self.pos = (100, 300)
+				self.delta = (0, 0)
+				self.state = Mario.RIGHT_RUN
+				self.falling_speed = 0
+				self.is_collide = False
+
+				GameState.stage_level = 1
+				GameWorld.curr_objects = GameWorld.stage1_objects
+
 
 	def get_bb(self):
 		x, y = self.pos
@@ -184,7 +222,7 @@ class Mario:
 	def handle_event(self, event):
 		pair = (event.type, event.key)
 
-		if pair in Mario.KEY_MAP:
+		if (pair in Mario.KEY_MAP):
 			self.update_delta(*Mario.KEY_MAP[pair])
 		elif (pair == Mario.KEY_SPACE):
 			self.jump()
