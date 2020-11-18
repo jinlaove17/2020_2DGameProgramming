@@ -78,11 +78,12 @@ def load_stage():
 	GameWorld.curr_objects = GameWorld.stage1_objects
 
 def load_sound():
-	global bgm, jump_wav, coin_wav
+	global bgm, jump_wav, coin_wav, life_lost_wav
 
 	bgm = load_music("SOUND/cave dungeon.mp3")
 	jump_wav = load_wav("SOUND/jump.wav")
 	coin_wav = load_wav("SOUND/coin.wav")
+	life_lost_wav = load_wav("SOUND/life lost.wav")
 
 	bgm.set_volume(80)
 	bgm.repeat_play()
@@ -96,19 +97,23 @@ def check_coin():
 			coin_wav.play()
 
 def check_obstacle():
+	global mario
+
 	for obstacle in GameWorld.objects_at(GameWorld.layer.obstacle):
 		if GameObject.collides_box(mario, obstacle):
-			pass
+			if ("FireBar" in obstacle.name):
+				mario.is_collide = True
 
 def set_mario_pos(stage):
 	global mario
 	
 	x, y = mario.pos
+	hw = Mario.IMAGE_RECT[mario.state][mario.fidx % len(Mario.IMAGE_RECT[mario.state])][2] // 2
 
 	if (stage == prev_stage):
-		x = get_canvas_width() - Mario.IMAGE_RECT[mario.state][mario.fidx][2] // 2
+		x = get_canvas_width() - hw
 	elif (stage == next_stage):
-		x = Mario.IMAGE_RECT[mario.state][mario.fidx][2] // 2
+		x = hw
 
 	mario.pos = x, y
 
