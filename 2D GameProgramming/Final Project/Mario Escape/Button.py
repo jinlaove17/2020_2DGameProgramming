@@ -12,15 +12,15 @@ LBUTTON_UP = (SDL_MOUSEBUTTONUP, SDL_BUTTON_LEFT)
 class Button:
 	GAME_START, DESCRIPTION, EXIT = range(3)
 
-	def __init__(self, bottom, x, y, menu):
+	def __init__(self, left, bottom, width, x, y, menu):
 		self.image = Image.load("IMAGE/TitleMenu.png")
-		self.src_rect = (self.left, self.bottom, self.width, self.height) = (0, bottom, 300, 90)
-		self.dst_rect = (x, y)
+		self.src_rect = (self.left, self.bottom, self.width, self.height) = (left, bottom, width, 90)
+		self.pos = (x, y)
 		self.menu = menu
 		self.mouse_point = None
 
 	def draw(self):
-		self.image.clip_draw(*self.src_rect, *self.dst_rect)
+		self.image.clip_draw(*self.src_rect, *self.pos)
 
 	def update(self):
 		pass
@@ -32,7 +32,9 @@ class Button:
 			if (pair == LBUTTON_DOWN):
 				if (GameObject.point_in_rect(GameObject.get_pico2d_pos(event), self.get_bb())):
 					self.mouse_point = GameObject.get_pico2d_pos(event)
-					self.left = 300
+
+					if (self.menu == Button.EXIT): self.left = 400
+					else: self.left = 300
 
 					return self
 
@@ -41,12 +43,15 @@ class Button:
 				in_rect = GameObject.point_in_rect(mouse_pos, self.get_bb())
 
 				if (in_rect):
-					self.left = 300
+					if (self.menu == Button.EXIT): self.left = 400
+					else: self.left = 300
 					TitleState.move_wav.play()
 				else:
-					self.left = 0
+					if (self.menu == Button.EXIT): self.left = 100
+					else: self.left = 0
 					
 			self.src_rect = (self.left, self.bottom, self.width, self.height)
+
 			return False
 
 		if (pair == LBUTTON_UP):
@@ -72,18 +77,19 @@ class Button:
 			in_rect = GameObject.point_in_rect(mouse_pos, self.get_bb())
 
 			if (in_rect):
-				self.left = 300
+				if (self.menu == Button.EXIT): self.left = 400
+				else: self.left = 300
 				self.src_rect = (self.left, self.bottom, self.width, self.height)
 
 			return False
 
 	def get_bb(self):
-		w, h = self.width, self.height
+		(x, y) = self.pos
+		(w, h) = (self.width, self.height)
 
-		left = self.dst_rect[0] - w // 2 
-		bottom = self.dst_rect[1] - h // 2
-		right = self.dst_rect[0] + w // 2
-		top = self.dst_rect[1] + h // 2
-
+		left = x - w // 2 
+		bottom = y - h // 2
+		right = x + w // 2
+		top = y + h // 2
 
 		return (left, bottom, right, top)
