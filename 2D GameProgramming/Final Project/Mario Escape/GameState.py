@@ -8,16 +8,15 @@ import GameObject
 import TitleState
 import json
 
-stage_level = None
-prev_stage, next_stage = range(2)
+STAGE_LEVEL = None
+PREV, NEXT = range(2)
 
 def enter():
 	GameWorld.game_init(["background", "platform", "coin", "obstacle", "mario"])
 	GameSprite.load()
 
+	init_stage()
 	load_sound()
-	load_stage()
-
 
 def update():
 	GameWorld.update()
@@ -30,8 +29,6 @@ def draw():
 	GameObject.draw_collision_box()
 
 def handle_event(event):
-	global mario
-
 	if (event.type == SDL_QUIT):
 		GameFramework.quit()
 	elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
@@ -50,11 +47,13 @@ def pause():
 def resume():
 	pass
 
-def load_stage():
-	global stage_level, mario, background
-	stage_level = 1
+def init_stage():
+	global STAGE_LEVEL
+	global mario, background
+
+	STAGE_LEVEL = 1
 	mario = Mario()
-	background = Background("IMAGE/background.png")
+	background = Background("IMAGE/Background.png", mario)
 
 	for level in range(1, 3 + 1):
 		with open("JSON/Stage_%d.json" % level) as file:
@@ -85,12 +84,11 @@ def load_sound():
 	coin_wav = load_wav("SOUND/coin.wav")
 	life_lost_wav = load_wav("SOUND/life lost.wav")
 
-	bgm.set_volume(80)
+	bgm.set_volume(100)
 	bgm.repeat_play()
+	life_lost_wav.set_volume(60)
 
 def check_coin():
-	global coin_wav
-
 	for coin in GameWorld.objects_at(GameWorld.layer.coin):
 		if GameObject.collides_box(mario, coin):
 			GameWorld.remove(coin)
@@ -104,50 +102,47 @@ def check_obstacle():
 			if ("FireBar" in obstacle.name):
 				mario.is_collide = True
 
-def set_mario_pos(stage):
-	global mario
-	
-	x, y = mario.pos
-	hw = Mario.IMAGE_RECT[mario.state][mario.fidx % len(Mario.IMAGE_RECT[mario.state])][2] // 2
+def set_stage(stage):
+	global STAGE_LEVEL
 
-	if (stage == prev_stage):
-		x = get_canvas_width() - hw
-	elif (stage == next_stage):
-		x = hw
-
-	mario.pos = x, y
-
+	if (stage == PREV):
+		STAGE_LEVEL -= 1
+		Background.STAGE_LEVEL -= 1
+	elif (stage == NEXT):
+		STAGE_LEVEL += 1
+		Background.STAGE_LEVEL += 1
 
 def change_stage():
-	global stage_level, mario, background
+	global STAGE_LEVEL, mario
 
+	(x, y) = mario.pos
 	hw = Mario.IMAGE_RECT[mario.state][mario.fidx % len(Mario.IMAGE_RECT[mario.state])][2] // 2
 
-	if (stage_level == 1):
-		if (mario.pos[0] < hw):
-			set_mario_pos(next_stage)
-		elif (mario.pos[0] >= get_canvas_width() - hw):
-			stage_level += 1
-			set_mario_pos(next_stage)
-			background.set_rect(150)
+	if (STAGE_LEVEL == 1):
+		if (x < hw):
+			x = hw
+		elif (x > get_canvas_width() - hw):
+			x = hw
+			set_stage(NEXT)
 			GameWorld.curr_objects = GameWorld.stage2_objects
-	elif (stage_level == 2):
-		if (mario.pos[0] < hw):
-			stage_level -= 1
-			set_mario_pos(prev_stage)
-			background.set_rect(0)
+	elif (STAGE_LEVEL == 2):
+		if (x < hw):
+			x = get_canvas_width() - hw
+			set_stage(PREV)
 			GameWorld.curr_objects = GameWorld.stage1_objects
-		elif (mario.pos[0] >= get_canvas_width() - hw):
-			stage_level += 1
-			set_mario_pos(next_stage)
-			background.set_rect(250)
+		elif (x > get_canvas_width() - hw):
+			x = hw
+			set_stage(NEXT)
 			GameWorld.curr_objects = GameWorld.stage3_objects
-	elif (stage_level == 3):
-		if (mario.pos[0] < hw):
-			stage_level -= 1
-			set_mario_pos(prev_stage)
-			background.set_rect(150)
+	elif (STAGE_LEVEL == 3):
+		if (x < hw):
+			x = get_canvas_width() - hw
+			set_stage(PREV)
 			GameWorld.curr_objects = GameWorld.stage2_objects
+		elif (x > get_canvas_width() - hw):
+			pass
+			
+	mario.pos = (x, y)
 
 if (__name__ == "__main__"):
 	GameFramework.run_main()
