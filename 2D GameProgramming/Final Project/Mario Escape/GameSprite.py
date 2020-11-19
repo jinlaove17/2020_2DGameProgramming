@@ -1,8 +1,8 @@
 from pico2d import *
-from math import *
 import GameFramework
 import Image
 import json
+import math
 
 sprite_image = None
 sprite_rects = {}
@@ -38,8 +38,8 @@ class Platform:
 		pass
 
 	def get_bb(self):
-		x, y = self.pos
-		w, h = self.size
+		(x, y) = self.pos
+		(w, h) = self.size
 
 		left = x
 		bottom = y
@@ -66,8 +66,8 @@ class Coin:
 		pass
 
 	def get_bb(self):
-		x, y = self.pos
-		w, h = self.rect[2] // 2, self.rect[3] // 2
+		(x, y) = self.pos
+		(w, h) = self.rect[2] // 2, self.rect[3] // 2
 
 		left = x - w
 		bottom = y - h
@@ -90,10 +90,10 @@ class Obstacle:
 		if ("FireBar" in self.name):
 			if ("FireBar_1" in self.name):
 				self.radius = 280
-				self.radian = pi
+				self.radian = math.pi
 			elif ("FireBar_2" in self.name):
 				self.radius = 140
-				self.radian = pi
+				self.radian = math.pi
 			elif ("FireBar_4" in self.name):
 				self.radius = 140
 				self.radian = 0
@@ -104,15 +104,15 @@ class Obstacle:
 	def draw(self):
 		self.rad += GameFramework.delta_time
 		self.radian += GameFramework.delta_time
-		self.pos = (400 + self.radius * cos(self.radian), 250 + self.radius * sin(self.radian))
+		self.pos = (400 + self.radius * math.cos(self.radian), 250 + self.radius * math.sin(self.radian))
 		sprite_image.clip_composite_draw(*self.rect, self.rad, ' ', *self.pos, *self.size)
 
 	def update(self):
 		pass
 
 	def get_bb(self):
-		x, y = self.pos
-		w, h = self.size
+		(x, y) = self.pos
+		(w, h) = self.size
 
 		left = x - w // 2
 		bottom = y - h // 2
