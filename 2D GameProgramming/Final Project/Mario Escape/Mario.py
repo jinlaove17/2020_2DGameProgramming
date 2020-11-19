@@ -1,4 +1,5 @@
 from pico2d import *
+from Background import *
 import GameFramework
 import GameObject
 import GameState
@@ -66,23 +67,23 @@ class Mario:
 		self.image.clip_draw(*Mario.IMAGE_RECT[self.state][self.fidx], *self.pos)
 
 	def update(self):
-		x, y = self.pos
-		dx, dy = self.delta
-		self.pos = x + dx, y + dy
+		(x, y) = self.pos
+		(dx, dy) = self.delta
+		self.pos = (x + dx, y + dy)
 		self.time += GameFramework.delta_time
 		self.die()
 
 		if (self.state in [Mario.LEFT_JUMP, Mario.RIGHT_JUMP, Mario.LEFT_FALLING, Mario.RIGHT_FALLING]):
-			x, y = self.pos
+			(x, y) = self.pos
 			y = y + self.falling_speed * GameFramework.delta_time
-			self.pos = x, y
+			self.pos = (x, y)
 			self.falling_speed -= Mario.GRAVITY * GameFramework.delta_time
 
-		_, foot, _, _ = self.get_bb()
+		(_, foot, _, _) = self.get_bb()
 		platform = self.get_platform(foot)
 
 		if (platform != None):
-			left, bottom, right, top = platform.get_bb()
+			(left, bottom, right, top) = platform.get_bb()
 
 			if (self.state == Mario.LEFT_IDLE or self.state == Mario.LEFT_RUN):
 				if (foot > top):
@@ -94,22 +95,22 @@ class Mario:
 					self.falling_speed = 0	
 			elif (self.state == Mario.LEFT_FALLING or self.state == Mario.LEFT_JUMP):
 				if (self.falling_speed < 0 and int(foot) <= top):
-					x, y = self.pos
-					y = y + top - foot
-					self.pos = x, y
+					(x, y) = self.pos
+					y = y + (top - foot)
+					self.pos = (x, y)
 					self.state = Mario.LEFT_RUN
 					self.falling_speed = 0
 			elif (self.state == Mario.RIGHT_FALLING or self.state == Mario.RIGHT_JUMP):
 				if (self.falling_speed < 0 and int(foot) <= top):
-					x, y = self.pos
-					y = y + top - foot
-					self.pos = x, y
+					(x, y) = self.pos
+					y = y + (top - foot)
+					self.pos = (x, y)
 					self.state = Mario.RIGHT_RUN
 					self.falling_speed = 0
 
 	def update_delta(self, ddx, ddy):
 		if (self.state != Mario.DIE):
-			dx, dy = self.delta
+			(dx, dy) = self.delta
 			
 			if (ddx != 0):
 				dx += 3 * ddx
@@ -142,7 +143,7 @@ class Mario:
 								ddy = 0
 								break
 							
-			self.delta = dx, dy
+			self.delta = (dx, dy)
 
 	def jump(self):
 		if (self.state in [Mario.LEFT_IDLE, Mario.LEFT_RUN]):
@@ -155,26 +156,26 @@ class Mario:
 			GameState.jump_wav.play()
 
 	def die(self):
-		x, y = self.pos
+		(x, y) = self.pos
 		h = Mario.IMAGE_RECT[self.state][self.fidx % len(Mario.IMAGE_RECT[self.state])][3] // 2
 
 		if (self.state != Mario.DIE):
 			if (y + h <= 0):
 				y += 200
-				self.pos = x, y
+				self.pos = (x, y)
 				self.state = Mario.DIE
 				self.falling_speed = 0
 				GameState.life_lost_wav.play()
 			elif (self.is_collide):
 				y += 50
-				self.pos = x, y
+				self.pos = (x, y)
 				self.state = Mario.DIE
 				self.falling_speed = 0
 				GameState.life_lost_wav.play()
 		else:
-			x, y = self.pos
+			(x, y) = self.pos
 			y = y + self.falling_speed * GameFramework.delta_time
-			self.pos = x, y
+			self.pos = (x, y)
 			self.delta = (0, 0)
 			self.falling_speed -= Mario.GRAVITY * GameFramework.delta_time // 15
 
@@ -185,13 +186,13 @@ class Mario:
 				self.falling_speed = 0
 				self.is_collide = False
 
-				GameState.stage_level = 1
+				GameState.STAGE_LEVEL = 1
+				Background.STAGE_LEVEL = 1
 				GameWorld.curr_objects = GameWorld.stage1_objects
 
-
 	def get_bb(self):
-		x, y = self.pos
-		w, h = (Mario.IMAGE_RECT[self.state][self.fidx % len(Mario.IMAGE_RECT[self.state])][2] // 2, Mario.IMAGE_RECT[self.state][self.fidx % len(Mario.IMAGE_RECT[self.state])][3] // 2)
+		(x, y) = self.pos
+		(w, h) = (Mario.IMAGE_RECT[self.state][self.fidx % len(Mario.IMAGE_RECT[self.state])][2] // 2, Mario.IMAGE_RECT[self.state][self.fidx % len(Mario.IMAGE_RECT[self.state])][3] // 2)
 
 		left = x - w
 		bottom = y - h
@@ -203,7 +204,7 @@ class Mario:
 	def get_platform(self, foot):
 		selected = None
 		select_top = 0
-		x, y = self.pos
+		(x, y) = self.pos
 
 		for platform in GameWorld.objects_at(GameWorld.layer.platform):
 			left, bottom, right, top = platform.get_bb()
