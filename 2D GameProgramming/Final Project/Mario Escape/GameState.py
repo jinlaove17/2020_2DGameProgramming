@@ -55,7 +55,7 @@ def init_stage():
 	mario = Mario()
 	background = Background("IMAGE/Background.png", mario)
 
-	for level in range(1, 3 + 1):
+	for level in range(1, 4 + 1):
 		with open("JSON/Stage_%d.json" % level) as file:
 			data = json.load(file)
 
@@ -140,7 +140,14 @@ def change_stage():
 			set_stage(PREV)
 			GameWorld.curr_objects = GameWorld.stage2_objects
 		elif (x > get_canvas_width() - hw):
-			pass
+			x = hw
+			set_stage(NEXT)
+			GameWorld.curr_objects = GameWorld.stage4_objects
+	elif (STAGE_LEVEL == 4):
+		if (x < hw):
+			x = get_canvas_width() - hw
+			set_stage(PREV)
+			GameWorld.curr_objects = GameWorld.stage3_objects
 			
 	mario.pos = (x, y)
 
