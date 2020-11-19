@@ -11,16 +11,15 @@ def enter():
 	GameWorld.title_init(["background", "ui"])
 
 	background = Background("Image/Title.png")
-	background.set_rect(250, 80)
 	GameWorld.add(GameWorld.layer.background, background)
 
-	start_button = Button(180, 620, 300, Button.GAME_START)
+	start_button = Button(0, 180, 300, 620, 300, Button.GAME_START)
 	GameWorld.add(GameWorld.layer.ui, start_button)
 
-	des_button = Button(90, 620, 200, Button.DESCRIPTION)
+	des_button = Button(0, 90, 300, 620, 200, Button.DESCRIPTION)
 	GameWorld.add(GameWorld.layer.ui, des_button)
 
-	exit_button = Button(0, 620, 100, Button.EXIT)
+	exit_button = Button(100, 0, 100, 620, 100, Button.EXIT)
 	GameWorld.add(GameWorld.layer.ui, exit_button)
 
 	GameWorld.curr_objects = GameWorld.title_objects
