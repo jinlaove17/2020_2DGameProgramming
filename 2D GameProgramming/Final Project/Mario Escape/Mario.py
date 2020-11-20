@@ -7,6 +7,7 @@ import GameWorld
 import Image
 
 class Mario:
+	MOVE_PPS = 250
 	GRAVITY = 3000
 	JUMP = 900
 	LEFT_IDLE, RIGHT_IDLE, LEFT_RUN, RIGHT_RUN, LEFT_JUMP, RIGHT_JUMP, LEFT_FALLING, RIGHT_FALLING, CLIMB, DIE = range(10)
@@ -63,13 +64,15 @@ class Mario:
 		self.is_collide = False
 
 	def draw(self):
-		self.fidx = int(self.time * self.FPS) % len(Mario.IMAGE_RECT[self.state])
+		self.fidx = round(self.time * self.FPS) % len(Mario.IMAGE_RECT[self.state])
 		self.image.clip_draw(*Mario.IMAGE_RECT[self.state][self.fidx], *self.pos)
 
 	def update(self):
 		(x, y) = self.pos
 		(dx, dy) = self.delta
-		self.pos = (x + dx, y + dy)
+		x += dx * Mario.MOVE_PPS * GameFramework.delta_time
+		y += dy * Mario.MOVE_PPS * GameFramework.delta_time
+		self.pos = (x, y)
 		self.time += GameFramework.delta_time
 		self.die()
 
@@ -113,7 +116,7 @@ class Mario:
 			(dx, dy) = self.delta
 			
 			if (ddx != 0):
-				dx += 3 * ddx
+				dx += ddx
 				self.state = \
 					Mario.LEFT_RUN if dx < 0 else \
 					Mario.RIGHT_RUN if dx > 0 else \
@@ -134,7 +137,7 @@ class Mario:
 							if (ddy < 0 and foot <= bottom): break
 							# 위의 조건식을 써도 KEY_DOWN일 때는 문제가 되지 않는데, KEY_UP이 일어나면서 문제 발생
 							
-							dy += 3 * ddy
+							dy += ddy
 							self.state = Mario.CLIMB
 							
 							if (foot + dy >= top):
