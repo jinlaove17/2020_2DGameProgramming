@@ -24,6 +24,86 @@
     "h": 70
   },
   {
+    "name": "Tile_2_All",
+    "layer_index": 1,
+    "x": 90,
+    "y": 150,
+    "w": 150,
+    "h": 80
+  },
+  {
+    "name": "Tile_2_All",
+    "layer_index": 1,
+    "x": 280,
+    "y": 20,
+    "w": 180,
+    "h": 80
+  },
+  {
+    "name": "Tile_2_All",
+    "layer_index": 1,
+    "x": 490,
+    "y": 5,
+    "w": 120,
+    "h": 60
+  },
+  {
+    "name": "Tile_2_Right",
+    "layer_index": 1,
+    "x": 680,
+    "y": 20,
+    "w": 120,
+    "h": 120
+  },
+  {
+    "name": "Coin",
+    "layer_index": 2,
+    "x": 300,
+    "y": 410,
+    "w": null,
+    "h": null
+  },
+  {
+    "name": "Coin",
+    "layer_index": 2,
+    "x": 685,
+    "y": 460,
+    "w": null,
+    "h": null
+  },
+  {
+    "name": "Coin",
+    "layer_index": 2,
+    "x": 140,
+    "y": 270,
+    "w": null,
+    "h": null
+  },
+  {
+    "name": "Coin",
+    "layer_index": 2,
+    "x": 190,
+    "y": 270,
+    "w": null,
+    "h": null
+  },
+  {
+    "name": "Coin",
+    "layer_index": 2,
+    "x": 550,
+    "y": 95,
+    "w": null,
+    "h": null
+  },
+  {
+    "name": "Obstacle_Spike",
+    "layer_index": 3,
+    "x": 650,
+    "y": 370,
+    "w": null,
+    "h": null
+  },
+  {
     "name": "Obstacle_FireBar_1",
     "layer_index": 3,
     "x": 120,
@@ -62,77 +142,5 @@
     "y": 250,
     "w": 80,
     "h": 102
-  },
-  {
-    "name": "Tile_2_All",
-    "layer_index": 1,
-    "x": 90,
-    "y": 150,
-    "w": 150,
-    "h": 80
-  },
-  {
-    "name": "Tile_2_All",
-    "layer_index": 1,
-    "x": 280,
-    "y": 20,
-    "w": 180,
-    "h": 80
-  },
-  {
-    "name": "Tile_2_All",
-    "layer_index": 1,
-    "x": 490,
-    "y": 5,
-    "w": 120,
-    "h": 60
-  },
-  {
-    "name": "Tile_2_Right",
-    "layer_index": 1,
-    "x": 680,
-    "y": 20,
-    "w": 120,
-    "h": 120
-  },
-  {
-    "name": "Coin_1",
-    "layer_index": 2,
-    "x": 300,
-    "y": 410,
-    "w": 0,
-    "h": 0
-  },
-  {
-    "name": "Coin_1",
-    "layer_index": 2,
-    "x": 660,
-    "y": 410,
-    "w": 0,
-    "h": 0
-  },
-  {
-    "name": "Coin_1",
-    "layer_index": 2,
-    "x": 140,
-    "y": 270,
-    "w": 0,
-    "h": 0
-  },
-  {
-    "name": "Coin_1",
-    "layer_index": 2,
-    "x": 190,
-    "y": 270,
-    "w": 0,
-    "h": 0
-  },
-  {
-    "name": "Coin_1",
-    "layer_index": 2,
-    "x": 550,
-    "y": 95,
-    "w": 0,
-    "h": 0
   }
 ]

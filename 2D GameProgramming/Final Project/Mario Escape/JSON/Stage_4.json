@@ -14,5 +14,117 @@
     "y": 20,
     "w": 120,
     "h": 120
+  },
+  {
+    "name": "Tile_2_Right",
+    "layer_index": 1,
+    "x": 650,
+    "y": 50,
+    "w": 150,
+    "h": 120
+  },
+  {
+    "name": "Tile_1",
+    "layer_index": 1,
+    "x": 200,
+    "y": 150,
+    "w": 64,
+    "h": 55
+  },
+  {
+    "name": "Tile_1",
+    "layer_index": 1,
+    "x": 345,
+    "y": 75,
+    "w": 64,
+    "h": 55
+  },
+  {
+    "name": "Tile_1",
+    "layer_index": 1,
+    "x": 324,
+    "y": 240,
+    "w": 64,
+    "h": 55
+  },
+  {
+    "name": "Tile_1",
+    "layer_index": 1,
+    "x": 448,
+    "y": 300,
+    "w": 64,
+    "h": 55
+  },
+  {
+    "name": "Tile_2_All",
+    "layer_index": 1,
+    "x": 580,
+    "y": 250,
+    "w": 150,
+    "h": 80
+  },
+  {
+    "name": "Tile_2_All",
+    "layer_index": 1,
+    "x": 490,
+    "y": 20,
+    "w": 140,
+    "h": 80
+  },
+  {
+    "name": "Coin",
+    "layer_index": 2,
+    "x": 760,
+    "y": 250,
+    "w": null,
+    "h": null
+  },
+  {
+    "name": "Coin",
+    "layer_index": 2,
+    "x": 760,
+    "y": 310,
+    "w": null,
+    "h": null
+  },
+  {
+    "name": "Coin",
+    "layer_index": 2,
+    "x": 760,
+    "y": 370,
+    "w": null,
+    "h": null
+  },
+  {
+    "name": "Coin",
+    "layer_index": 2,
+    "x": 530,
+    "y": 130,
+    "w": null,
+    "h": null
+  },
+  {
+    "name": "Coin",
+    "layer_index": 2,
+    "x": 580,
+    "y": 130,
+    "w": null,
+    "h": null
+  },
+  {
+    "name": "Obstacle_Spike",
+    "layer_index": 3,
+    "x": 630,
+    "y": 330,
+    "w": null,
+    "h": null
+  },
+  {
+    "name": "Plant",
+    "layer_index": 4,
+    "x": 690,
+    "y": 204,
+    "w": null,
+    "h": null
   }
 ]

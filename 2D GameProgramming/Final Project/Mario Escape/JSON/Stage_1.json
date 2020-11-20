@@ -40,43 +40,43 @@
     "h": 246
   },
   {
-    "name": "Coin_1",
+    "name": "Coin",
     "layer_index": 2,
     "x": 350,
     "y": 200,
-    "w": 0,
-    "h": 0
+    "w": null,
+    "h": null
   },
   {
-    "name": "Coin_1",
+    "name": "Coin",
     "layer_index": 2,
     "x": 350,
     "y": 350,
-    "w": 0,
-    "h": 0
+    "w": null,
+    "h": null
   },
   {
-    "name": "Coin_1",
+    "name": "Coin",
     "layer_index": 2,
     "x": 400,
     "y": 400,
-    "w": 0,
-    "h": 0
+    "w": null,
+    "h": null
   },
   {
-    "name": "Coin_1",
+    "name": "Coin",
     "layer_index": 2,
     "x": 450,
     "y": 450,
-    "w": 0,
-    "h": 0
+    "w": null,
+    "h": null
   },
   {
-    "name": "Coin_1",
+    "name": "Coin",
     "layer_index": 2,
     "x": 500,
     "y": 400,
-    "w": 0,
-    "h": 0
+    "w": null,
+    "h": null
   }
 ]
