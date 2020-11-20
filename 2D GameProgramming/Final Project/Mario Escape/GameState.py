@@ -12,7 +12,7 @@ STAGE_LEVEL = None
 PREV, NEXT = range(2)
 
 def enter():
-	GameWorld.game_init(["background", "platform", "coin", "obstacle", "mario"])
+	GameWorld.game_init(["background", "platform", "coin", "obstacle", "plant", "mario"])
 	GameSprite.load()
 
 	init_stage()
@@ -51,7 +51,7 @@ def init_stage():
 	global STAGE_LEVEL
 	global mario, background
 
-	STAGE_LEVEL = 1
+	STAGE_LEVEL = 4
 	mario = Mario()
 	background = Background("IMAGE/Background.png", mario)
 
@@ -60,21 +60,21 @@ def init_stage():
 			data = json.load(file)
 
 			for info in data:
-				if ("Tile" in info["name"]):
-					object = GameSprite.Platform(info["name"], info["x"], info["y"], info["w"], info["h"])
-				elif ("Ladder" in info["name"]):
+				if ("Tile" in info["name"] or "Ladder" in info["name"]):
 					object = GameSprite.Platform(info["name"], info["x"], info["y"], info["w"], info["h"])
 				elif ("Coin" in info["name"]):
 					object = GameSprite.Coin(info["name"], info["x"], info["y"], info["w"], info["h"])
 				elif ("Obstacle" in info["name"]):
 					object = GameSprite.Obstacle(info["name"], info["x"], info["y"], info["w"], info["h"])
+				elif ("Plant" in info["name"]):
+					object = GameSprite.Plant(info["name"], info["x"], info["y"], info["w"], info["h"], mario)
 
 				GameWorld.add(info["layer_index"], object, level)
 		
 		GameWorld.add(GameWorld.layer.mario, mario, level)
 		GameWorld.add(GameWorld.layer.background, background, level)
 			
-	GameWorld.curr_objects = GameWorld.stage1_objects
+	GameWorld.curr_objects = GameWorld.stage4_objects
 
 def load_sound():
 	global bgm, jump_wav, coin_wav, life_lost_wav
@@ -99,8 +99,21 @@ def check_obstacle():
 
 	for obstacle in GameWorld.objects_at(GameWorld.layer.obstacle):
 		if GameObject.collides_box(mario, obstacle):
-			if ("FireBar" in obstacle.name):
 				mario.is_collide = True
+				break
+
+	for plant in GameWorld.objects_at(GameWorld.layer.plant):
+		if GameObject.collides_box(mario, plant):
+				mario.is_collide = True
+				break
+
+	for obstacle in GameWorld.objects_at(GameWorld.layer.obstacle):
+		if ("Stone" in obstacle.name):
+			for plant in GameWorld.objects_at(GameWorld.layer.plant):
+				if GameObject.collides_box(obstacle, plant):
+					GameWorld.remove(obstacle)
+					plant.state = GameSprite.Plant.DIE
+					return
 
 def set_stage(stage):
 	global STAGE_LEVEL
