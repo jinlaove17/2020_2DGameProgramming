@@ -58,6 +58,14 @@
   {
     "name": "Tile_2_All",
     "layer_index": 1,
+    "x": 10,
+    "y": 370,
+    "w": 140,
+    "h": 60
+  },
+  {
+    "name": "Tile_2_All",
+    "layer_index": 1,
     "x": 580,
     "y": 250,
     "w": 150,
@@ -126,5 +134,13 @@
     "y": 204,
     "w": null,
     "h": null
+  },
+  {
+    "name": "RandomBox",
+    "layer_index": 5,
+    "x": 70,
+    "y": 430,
+    "w": 30,
+    "h": 30
   }
 ]
