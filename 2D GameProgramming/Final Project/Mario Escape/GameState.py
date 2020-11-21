@@ -44,7 +44,7 @@ def handle_event(event):
 	mario.handle_event(event)
 
 def exit():
-	global font, bgm, start_wav, jump_wav, coin_wav, life_lost_wav
+	global font, bgm, start_wav, jump_wav, coin_wav, life_lost_wav, plant_attack_wav, plant_dead_wav
 
 	Image.unload("IMAGE/Mario.png")
 	Image.unload("IMAGE/Sprite.png")
@@ -58,6 +58,8 @@ def exit():
 	del jump_wav
 	del coin_wav
 	del life_lost_wav
+	del plant_attack_wav
+	del plant_dead_wav
 
 def pause():
 	pass
