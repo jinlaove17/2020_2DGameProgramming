@@ -74,7 +74,7 @@ class Coin:
 
 	def get_bb(self):
 		(x, y) = self.pos
-		(w, h) = (Coin.IMAGE_RECT[self.fidx][2] // 2, Coin.IMAGE_RECT[self.fidx][2] // 2)
+		(w, h) = (Coin.IMAGE_RECT[self.fidx][2] // 2, Coin.IMAGE_RECT[self.fidx][3] // 2)
 
 		left = x - w
 		bottom = y - h
@@ -102,7 +102,6 @@ class Obstacle:
 		self.rad = 0
 		self.radius = 0
 		self.radian = 0
-		self.spike_wav_plays = False
 
 		if ("FireBar" in self.name):
 			if ("FireBar_1" in self.name):
@@ -242,8 +241,9 @@ class Plant:
 
 	def attack(self):
 		(x, y, dx, dy) = self.get_coords()
-		if (x <= 140): return
+		if (x <= 100): return
 		self.state = Plant.ATTACK
+		GameState.plant_attack_wav.play()
 
 		# 78은 Obstacle_Stone의 너비(w)
 		stone = Obstacle("Obstacle_Stone", x, y, 78, 58, dx, dy)
@@ -262,12 +262,13 @@ class Box:
 		sprite_image.clip_draw_to_origin(*self.rect, *self.pos, *self.size)
 
 	def update(self):
-		if (self.is_collide):
-			(mario_dx, mario_dy) = self.mario.delta
-			self.mario.delta = (mario_dx / 2, mario_dy)
-			(x, y) = self.pos
-			x += (mario_dx / 2) * 250 * GameFramework.delta_time
-			self.pos = (x, y)
+		#if (self.is_collide):
+		#	(mario_dx, mario_dy) = self.mario.delta
+		#	self.mario.delta = (mario_dx / 2, mario_dy)
+		#	(x, y) = self.pos
+		#	x += (mario_dx / 2) * 250 * GameFramework.delta_time
+		#	self.pos = (x, y)
+		pass
 
 	def get_bb(self):
 		(x, y) = self.pos
@@ -284,11 +285,14 @@ class UI:
 	LIFE_COUNT = 3
 
 	def __init__(self, x, y):
-		self.life_pos = (x, y)
-		self.coin_pos = (x, y - 35)
+		self.mario_pos = (x, y)
+		self.life_pos = (x + 55, y + 30)
+		self.coin_pos = (x + 55, y)
 		UI.LIFE_COUNT = 3
 
 	def draw(self):
+		mario_rect = (856, 323, 47, 62)
+		sprite_image.clip_draw_to_origin(*mario_rect, *self.mario_pos)
 		life_rect = (660, 596, 40 * UI.LIFE_COUNT, 24)
 		sprite_image.clip_draw_to_origin(*life_rect, *self.life_pos)
 		coin_rect = (582, 445, 31, 32)
