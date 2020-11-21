@@ -45,7 +45,7 @@ class Button:
 				if (in_rect):
 					if (self.menu == Button.EXIT): self.left = 400
 					else: self.left = 300
-					TitleState.move_wav.play()
+					TitleState.in_rect_wav.play()
 				else:
 					if (self.menu == Button.EXIT): self.left = 100
 					else: self.left = 0
@@ -61,9 +61,6 @@ class Button:
 
 			if (in_rect):
 				if (self.menu == Button.GAME_START):
-					TitleState.bgm.stop()
-					TitleState.select_wav.play()
-					GameWorld.current_objects = GameWorld.stage1_objects
 					GameFramework.change(GameState)
 				elif (self.menu == Button.DESCRIPTION):
 					pass
