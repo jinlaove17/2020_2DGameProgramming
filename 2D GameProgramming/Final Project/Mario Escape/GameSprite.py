@@ -1,5 +1,6 @@
 from pico2d import *
 import GameFramework
+import GameState
 import GameWorld
 import Image
 import json
@@ -101,6 +102,7 @@ class Obstacle:
 		self.rad = 0
 		self.radius = 0
 		self.radian = 0
+		self.spike_wav_plays = False
 
 		if ("FireBar" in self.name):
 			if ("FireBar_1" in self.name):
@@ -164,7 +166,6 @@ class Obstacle:
 
 class Plant:
 	FPS = 3
-	PPS = 100
 	ATTACK_COUNT = 0
 	STATE_CHANGE_COUNT = 0
 	FALLING_PPS = 300
@@ -178,11 +179,11 @@ class Plant:
 		[(1081, 496, 48, 68)]
 	]
 
-	def __init__(self, name, x, y, w, h, m):
+	def __init__(self, name, x, y, w, h, mario):
 		self.name = name
 		self.rect = sprite_rects[name]
 		self.pos = (x, y)
-		self.mario = m
+		self.mario = mario
 		self.size = (w, h)
 		self.fidx = 0
 		self.time = 0
@@ -194,17 +195,17 @@ class Plant:
 		sprite_image.clip_draw(*Plant.IMAGE_RECT[self.state][self.fidx], *self.pos)
 
 	def update(self):
-		Plant.ATTACK_COUNT += Plant.PPS * GameFramework.delta_time
+		Plant.ATTACK_COUNT += Plant.FPS * GameFramework.delta_time
 
-		if (Plant.ATTACK_COUNT >= 200):
+		if (Plant.ATTACK_COUNT >= 5):
 			Plant.ATTACK_COUNT = 0
 			attacks = random.choice([True, False])
 			if (attacks): self.attack()
 
 		if (self.state == Plant.ATTACK):
-			Plant.STATE_CHANGE_COUNT += Plant.PPS * GameFramework.delta_time
+			Plant.STATE_CHANGE_COUNT += Plant.FPS * GameFramework.delta_time
 
-			if (Plant.STATE_CHANGE_COUNT >= 100):
+			if (Plant.STATE_CHANGE_COUNT >= 3):
 				Plant.STATE_CHANGE_COUNT = 0
 				self.state = Plant.IDLE
 		elif (self.state == Plant.DIE):
@@ -241,9 +242,57 @@ class Plant:
 
 	def attack(self):
 		(x, y, dx, dy) = self.get_coords()
-		if (x <= 100): return
+		if (x <= 140): return
 		self.state = Plant.ATTACK
 
 		# 78은 Obstacle_Stone의 너비(w)
 		stone = Obstacle("Obstacle_Stone", x, y, 78, 58, dx, dy)
 		GameWorld.add(GameWorld.layer.obstacle, stone, 4)
+
+class Box:
+	def __init__(self, name, x, y, w, h, mario):
+		self.name = name
+		self.rect = sprite_rects[name]
+		self.pos = (x, y)
+		self.size = (w, h)
+		self.mario = mario
+		self.is_collide = False
+
+	def draw(self):
+		sprite_image.clip_draw_to_origin(*self.rect, *self.pos, *self.size)
+
+	def update(self):
+		if (self.is_collide):
+			(mario_dx, mario_dy) = self.mario.delta
+			self.mario.delta = (mario_dx / 2, mario_dy)
+			(x, y) = self.pos
+			x += (mario_dx / 2) * 250 * GameFramework.delta_time
+			self.pos = (x, y)
+
+	def get_bb(self):
+		(x, y) = self.pos
+		(w, h) = self.size
+
+		left = x
+		bottom = y
+		right =  x + w
+		top =  y + h
+
+		return (left, bottom, right, top)
+
+class UI:
+	LIFE_COUNT = 3
+
+	def __init__(self, x, y):
+		self.life_pos = (x, y)
+		self.coin_pos = (x, y - 35)
+		UI.LIFE_COUNT = 3
+
+	def draw(self):
+		life_rect = (660, 596, 40 * UI.LIFE_COUNT, 24)
+		sprite_image.clip_draw_to_origin(*life_rect, *self.life_pos)
+		coin_rect = (582, 445, 31, 32)
+		sprite_image.clip_draw_to_origin(*coin_rect, *self.coin_pos, 25, 25)
+
+	def update(self):
+		pass

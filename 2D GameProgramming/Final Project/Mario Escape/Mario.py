@@ -1,6 +1,7 @@
 from pico2d import *
 from Background import *
 import GameFramework
+import GameSprite
 import GameObject
 import GameState
 import GameWorld
@@ -11,7 +12,6 @@ class Mario:
 	GRAVITY = 3000
 	JUMP = 900
 	LEFT_IDLE, RIGHT_IDLE, LEFT_RUN, RIGHT_RUN, LEFT_JUMP, RIGHT_JUMP, LEFT_FALLING, RIGHT_FALLING, CLIMB, DIE = range(10)
-
 	KEY_MAP = {
 		(SDL_KEYDOWN, SDLK_UP):    ( 0,  1),
 		(SDL_KEYDOWN, SDLK_DOWN):  ( 0, -1),
@@ -22,9 +22,7 @@ class Mario:
 		(SDL_KEYUP, SDLK_LEFT):    ( 1,  0),
 		(SDL_KEYUP, SDLK_RIGHT):   (-1,  0)
 	}
-
 	KEY_SPACE = (SDL_KEYDOWN, SDLK_SPACE)
-
 	IMAGE_RECT = [
 		# Left Idle
 		[ (53, 426, 32, 76), (197, 426, 32, 76), (341, 426, 30, 76) ],
@@ -168,12 +166,14 @@ class Mario:
 				self.pos = (x, y)
 				self.state = Mario.DIE
 				self.falling_speed = 0
+				GameSprite.UI.LIFE_COUNT -= 1
 				GameState.life_lost_wav.play()
 			elif (self.is_collide):
 				y += 50
 				self.pos = (x, y)
 				self.state = Mario.DIE
 				self.falling_speed = 0
+				GameSprite.UI.LIFE_COUNT -= 1
 				GameState.life_lost_wav.play()
 		else:
 			(x, y) = self.pos
