@@ -19,8 +19,8 @@ def enter():
 	GameWorld.game_init(["background", "platform", "coin", "obstacle", "plant", "box", "mario", "ui"])
 	GameSprite.load()
 
-	init_stage()
 	load_sound()
+	init_stage()
 
 def update():
 	GameWorld.update()
@@ -33,7 +33,6 @@ def draw():
 	GameWorld.draw()
 	GameObject.draw_collision_box()
 	font.draw(95, get_canvas_height() - 60, "X %d" % TOTAL_COIN_COUNT, FONT_COLOR)
-
 
 def handle_event(event):
 	if (event.type == SDL_QUIT):
@@ -91,7 +90,7 @@ def init_stage():
 				elif ("Obstacle" in info["name"]):
 					object = GameSprite.Obstacle(info["name"], info["x"], info["y"], info["w"], info["h"])
 				elif ("Plant" in info["name"]):
-					object = GameSprite.Plant(info["name"], info["x"], info["y"], info["w"], info["h"], mario)
+					object = GameSprite.Plant(info["name"], info["x"], info["y"], info["w"], info["h"], mario, plant_attack_wav)
 				elif ("Box" in info["name"]):
 					object = GameSprite.Box(info["name"], info["x"], info["y"], info["w"], info["h"], mario)
 

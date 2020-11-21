@@ -1,6 +1,5 @@
 from pico2d import *
 import GameFramework
-import GameState
 import GameWorld
 import Image
 import json
@@ -178,7 +177,7 @@ class Plant:
 		[(1081, 496, 48, 68)]
 	]
 
-	def __init__(self, name, x, y, w, h, mario):
+	def __init__(self, name, x, y, w, h, mario, wav):
 		self.name = name
 		self.rect = sprite_rects[name]
 		self.pos = (x, y)
@@ -187,6 +186,7 @@ class Plant:
 		self.fidx = 0
 		self.time = 0
 		self.state = Plant.IDLE
+		self.wav = wav
 
 	def draw(self):
 		self.time += GameFramework.delta_time
@@ -243,7 +243,7 @@ class Plant:
 		(x, y, dx, dy) = self.get_coords()
 		if (x <= 100): return
 		self.state = Plant.ATTACK
-		GameState.plant_attack_wav.play()
+		self.wav.play()
 
 		# 78은 Obstacle_Stone의 너비(w)
 		stone = Obstacle("Obstacle_Stone", x, y, 78, 58, dx, dy)
