@@ -8,6 +8,8 @@ import GameWorld
 capture = None
 
 def enter():
+	global background, start_button, des_button, exit_button
+
 	GameWorld.title_init(["background", "ui"])
 
 	background = Background("Image/Title.png")
@@ -72,7 +74,16 @@ def handle_mouse(event):
 	return False
 
 def exit():
-	pass
+	global bgm, select_wav, move_wav
+
+	Image.unload("Image/Title.png")
+	Image.unload("IMAGE/TitleMenu.png")
+	GameWorld.clear()
+
+	bgm.stop()
+	del bgm
+	del select_wav
+	del move_wav
 
 def pause():
 	pass
