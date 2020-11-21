@@ -6,13 +6,17 @@ import GameWorld
 import GameSprite
 import GameObject
 import TitleState
+import Image
+import Font
 import json
 
-STAGE_LEVEL = None
+STAGE_LEVEL = 0
+TOTAL_COIN_COUNT = 0
 PREV, NEXT = range(2)
+FONT_COLOR = (255, 255, 255)
 
 def enter():
-	GameWorld.game_init(["background", "platform", "coin", "obstacle", "plant", "mario"])
+	GameWorld.game_init(["background", "platform", "coin", "obstacle", "plant", "box", "mario", "ui"])
 	GameSprite.load()
 
 	init_stage()
@@ -20,26 +24,39 @@ def enter():
 
 def update():
 	GameWorld.update()
-	check_coin()
-	check_obstacle()
+	check_collision()
 	change_stage()
 
 def draw():
+	global font
+
 	GameWorld.draw()
 	GameObject.draw_collision_box()
+	font.draw(40, get_canvas_height() - 57, "X %d" % TOTAL_COIN_COUNT, FONT_COLOR)
+
 
 def handle_event(event):
 	if (event.type == SDL_QUIT):
 		GameFramework.quit()
 	elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
-		bgm.stop()
-		GameWorld.clear()
 		GameFramework.change(TitleState)
 
 	mario.handle_event(event)
 
 def exit():
-	pass
+	global font, bgm, jump_wav, coin_wav, life_lost_wav
+
+	Image.unload("IMAGE/Mario.png")
+	Image.unload("IMAGE/Sprite.png")
+	Image.unload("IMAGE/Background.png")
+	Font.unload("FONT/koverwatch.ttf", 25)
+	GameWorld.clear()
+
+	bgm.stop()
+	del bgm
+	del jump_wav
+	del coin_wav
+	del life_lost_wav
 
 def pause():
 	pass
@@ -48,12 +65,15 @@ def resume():
 	pass
 
 def init_stage():
-	global STAGE_LEVEL
-	global mario, background
+	global STAGE_LEVEL, TOTAL_COIN_COUNT
+	global mario, background, ui, font
 
 	STAGE_LEVEL = 1
+	TOTAL_COIN_COUNT = 0
 	mario = Mario()
 	background = Background("IMAGE/Background.png", mario)
+	ui = GameSprite.UI(10, get_canvas_height() - 34)
+	font = Font.load("FONT/koverwatch.ttf", 25)
 
 	for level in range(1, 4 + 1):
 		with open("JSON/Stage_%d.json" % level) as file:
@@ -64,48 +84,60 @@ def init_stage():
 					object = GameSprite.Platform(info["name"], info["x"], info["y"], info["w"], info["h"])
 				elif ("Coin" in info["name"]):
 					object = GameSprite.Coin(info["name"], info["x"], info["y"], info["w"], info["h"])
+					TOTAL_COIN_COUNT += 1
 				elif ("Obstacle" in info["name"]):
 					object = GameSprite.Obstacle(info["name"], info["x"], info["y"], info["w"], info["h"])
 				elif ("Plant" in info["name"]):
 					object = GameSprite.Plant(info["name"], info["x"], info["y"], info["w"], info["h"], mario)
+				elif ("Box" in info["name"]):
+					object = GameSprite.Box(info["name"], info["x"], info["y"], info["w"], info["h"], mario)
 
 				GameWorld.add(info["layer_index"], object, level)
 		
 		GameWorld.add(GameWorld.layer.mario, mario, level)
 		GameWorld.add(GameWorld.layer.background, background, level)
+		GameWorld.add(GameWorld.layer.ui, ui, level)
 			
 	GameWorld.curr_objects = GameWorld.stage1_objects
 
 def load_sound():
-	global bgm, jump_wav, coin_wav, life_lost_wav
+	global bgm, jump_wav, coin_wav, life_lost_wav, spike_wav
 
 	bgm = load_music("SOUND/cave dungeon.mp3")
 	jump_wav = load_wav("SOUND/jump.wav")
 	coin_wav = load_wav("SOUND/coin.wav")
 	life_lost_wav = load_wav("SOUND/life lost.wav")
+	spike_wav = load_wav("SOUND/spike.wav")
 
 	bgm.set_volume(100)
 	bgm.repeat_play()
 	life_lost_wav.set_volume(60)
 
-def check_coin():
+def check_collision():
+	global TOTAL_COIN_COUNT
+	global mario
+
 	for coin in GameWorld.objects_at(GameWorld.layer.coin):
 		if GameObject.collides_box(mario, coin):
 			GameWorld.remove(coin)
+			TOTAL_COIN_COUNT -= 1
 			coin_wav.play()
-
-def check_obstacle():
-	global mario
 
 	for obstacle in GameWorld.objects_at(GameWorld.layer.obstacle):
 		if GameObject.collides_box(mario, obstacle):
-				mario.is_collide = True
-				break
+			mario.is_collide = True
+			break
 
 	for plant in GameWorld.objects_at(GameWorld.layer.plant):
 		if GameObject.collides_box(mario, plant):
-				mario.is_collide = True
-				break
+			mario.is_collide = True
+			break
+
+	for box in GameWorld.objects_at(GameWorld.layer.box):
+		if GameObject.collides_box(mario, box):
+			box.is_collide = True
+		else:
+			box.is_collide = False
 
 	for obstacle in GameWorld.objects_at(GameWorld.layer.obstacle):
 		if ("Stone" in obstacle.name):
@@ -113,6 +145,11 @@ def check_obstacle():
 				if GameObject.collides_box(obstacle, plant):
 					GameWorld.remove(obstacle)
 					plant.state = GameSprite.Plant.DIE
+					return
+			for box in GameWorld.objects_at(GameWorld.layer.box):
+				if GameObject.collides_box(obstacle, box):
+					GameWorld.remove(obstacle)
+					GameWorld.remove(box)
 					return
 
 def set_stage(stage):
