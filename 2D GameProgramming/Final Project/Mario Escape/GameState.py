@@ -69,7 +69,7 @@ def init_stage():
 	global STAGE_LEVEL, TOTAL_COIN_COUNT
 	global mario, background, ui, font
 
-	STAGE_LEVEL = 4
+	STAGE_LEVEL = 1
 	TOTAL_COIN_COUNT = 0
 	mario = Mario()
 	background = Background("IMAGE/Background.png", mario)
@@ -99,7 +99,7 @@ def init_stage():
 		GameWorld.add(GameWorld.layer.background, background, level)
 		GameWorld.add(GameWorld.layer.ui, ui, level)
 			
-	GameWorld.curr_objects = GameWorld.stage4_objects
+	GameWorld.curr_objects = GameWorld.stage1_objects
 
 def load_sound():
 	global bgm, start_wav, jump_wav, coin_wav, life_lost_wav, spike_wav, plant_attack_wav, plant_dead_wav
