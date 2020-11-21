@@ -44,11 +44,10 @@ def handle_event(event):
 		return
 
 def load_sound():
-	global bgm, select_wav, move_wav
+	global bgm, in_rect_wav
 
 	bgm = load_music("SOUND/title theme.mp3")
-	select_wav = load_wav("SOUND/game start.wav")
-	move_wav = load_wav("SOUND/stomp.wav")
+	in_rect_wav = load_wav("SOUND/stomp.wav")
 
 	bgm.set_volume(100)
 	bgm.repeat_play()
@@ -74,7 +73,7 @@ def handle_mouse(event):
 	return False
 
 def exit():
-	global bgm, select_wav, move_wav
+	global bgm, in_rect_wav
 
 	Image.unload("Image/Title.png")
 	Image.unload("IMAGE/TitleMenu.png")
@@ -82,8 +81,7 @@ def exit():
 
 	bgm.stop()
 	del bgm
-	del select_wav
-	del move_wav
+	del in_rect_wav
 
 def pause():
 	pass
