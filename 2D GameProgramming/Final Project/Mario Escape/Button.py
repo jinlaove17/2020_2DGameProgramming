@@ -3,7 +3,6 @@ import GameFramework
 import GameState
 import GameWorld
 import GameObject
-import TitleState
 import Image
 
 LBUTTON_DOWN = (SDL_MOUSEBUTTONDOWN, SDL_BUTTON_LEFT)
@@ -12,12 +11,13 @@ LBUTTON_UP = (SDL_MOUSEBUTTONUP, SDL_BUTTON_LEFT)
 class Button:
 	GAME_START, DESCRIPTION, EXIT = range(3)
 
-	def __init__(self, left, bottom, width, x, y, menu):
+	def __init__(self, left, bottom, width, x, y, menu, wav):
 		self.image = Image.load("IMAGE/TitleMenu.png")
 		self.src_rect = (self.left, self.bottom, self.width, self.height) = (left, bottom, width, 90)
 		self.pos = (x, y)
 		self.menu = menu
 		self.mouse_point = None
+		self.wav = wav
 
 	def draw(self):
 		self.image.clip_draw(*self.src_rect, *self.pos)
@@ -45,7 +45,7 @@ class Button:
 				if (in_rect):
 					if (self.menu == Button.EXIT): self.left = 400
 					else: self.left = 300
-					TitleState.in_rect_wav.play()
+					self.wav.play()
 				else:
 					if (self.menu == Button.EXIT): self.left = 100
 					else: self.left = 0

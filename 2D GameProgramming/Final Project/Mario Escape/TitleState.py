@@ -10,23 +10,23 @@ capture = None
 def enter():
 	global background, start_button, des_button, exit_button
 
+	load_sound()
+
 	GameWorld.title_init(["background", "ui"])
 
 	background = Background("Image/Title.png")
 	GameWorld.add(GameWorld.layer.background, background)
 
-	start_button = Button(0, 180, 300, 620, 300, Button.GAME_START)
+	start_button = Button(0, 180, 300, 620, 300, Button.GAME_START, in_rect_wav)
 	GameWorld.add(GameWorld.layer.ui, start_button)
 
-	des_button = Button(0, 90, 300, 620, 200, Button.DESCRIPTION)
+	des_button = Button(0, 90, 300, 620, 200, Button.DESCRIPTION, in_rect_wav)
 	GameWorld.add(GameWorld.layer.ui, des_button)
 
-	exit_button = Button(100, 0, 100, 620, 100, Button.EXIT)
+	exit_button = Button(100, 0, 100, 620, 100, Button.EXIT, in_rect_wav)
 	GameWorld.add(GameWorld.layer.ui, exit_button)
 
 	GameWorld.curr_objects = GameWorld.title_objects
-
-	load_sound()
 
 def update():
 	GameWorld.update()
@@ -51,7 +51,6 @@ def load_sound():
 
 	bgm.set_volume(100)
 	bgm.repeat_play()
-	
 
 def handle_mouse(event):
 	global capture
