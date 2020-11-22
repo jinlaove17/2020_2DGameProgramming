@@ -194,7 +194,8 @@ class Plant:
 		sprite_image.clip_draw(*Plant.IMAGE_RECT[self.state][self.fidx], *self.pos)
 
 	def update(self):
-		Plant.ATTACK_COUNT += Plant.FPS * GameFramework.delta_time
+		if (self.state != Plant.DIE):
+			Plant.ATTACK_COUNT += Plant.FPS * GameFramework.delta_time
 
 		if (Plant.ATTACK_COUNT >= 5):
 			Plant.ATTACK_COUNT = 0
