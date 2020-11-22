@@ -125,9 +125,9 @@
 <br/>
 
 ### 12. Main GameState에 등장하는 GameObject들에 대하여 다음 사항 포함
-- class 구성 정보 (그림 구성, 동작 구성 등)
-- 상호작용 정보
-- 게임 내에서 이 class가 책임지는 핵심 코드에 대한 간단한 설명
+- **class 구성 정보(그림 구성, 동작 구성 등)**
+- **상호작용 정보**
+- **게임 내에서 이 class가 책임지는 핵심 코드에 대한 간단한 설명**
 ![State 구성1](https://user-images.githubusercontent.com/70697461/99901910-65ba7a80-2cfd-11eb-97a4-1d93574a5962.GIF)
 ![State 구성2](https://user-images.githubusercontent.com/70697461/99901912-67843e00-2cfd-11eb-925c-9830120130f5.GIF)
 ![State 구성3](https://user-images.githubusercontent.com/70697461/99901915-68b56b00-2cfd-11eb-9e1b-617e26f48b5b.GIF)
@@ -142,6 +142,6 @@
 - 모듈끼리 서로 양쪽으로 import하지 않도록 데이터를 관리하는 스킬(?)
 - 사다리 구현(KEY_DOWN, KEY_UP과 관련한 문제) 및 캐릭터의 상, 하, 좌, 우 자연스러운 이동
 - Visual Studio로 Python을 구현하다보면 2000MB이상의 메모리를 잡아먹을 때가 있는데 메모리 누수를 확인하는 방법
-- JSON으로 GameW	orld의 objects 리스트에 객체들을 넣었는데 이 때, State간 다르게 설정하기 위해서 stage별 objects list를 만들었는데 이 방법의 문제점과 좋은 개선 방향
+- JSON으로 GameWorld의 objects 리스트에 객체들을 넣었는데 이 때, State간 다르게 설정하기 위해서 stage별 objects list를 만들었는데 이 방법의 문제점과 좋은 개선 방향
 
 **[KPU] 2D GameProgramming**
