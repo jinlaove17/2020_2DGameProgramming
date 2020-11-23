@@ -2,16 +2,15 @@ from pico2d import *
 import Image
 
 class Background:
-    STAGE_LEVEL = 1
-
     def __init__(self, file, player=None):
         self.image = Image.load(file)
         self.mario = player
+        self.stage_level = 1
 
     def draw(self):
         # GameState Background
         if (self.mario != None):
-            rect = (50 * (Background.STAGE_LEVEL - 1), 0, get_canvas_width() + 100 * Background.STAGE_LEVEL, get_canvas_height())
+            rect = (50 * (self.stage_level - 1), 0, get_canvas_width() + 100 * self.stage_level, get_canvas_height())
             (x, y) = (get_canvas_width() // 2, get_canvas_height() // 2)
             (mx, my) = self.mario.pos
             (dx, dy) = (x - mx, y - my)
@@ -25,3 +24,6 @@ class Background:
 
     def update(self):
         pass
+
+    def set_stage_level(self, level):
+        self.stage_level = level
