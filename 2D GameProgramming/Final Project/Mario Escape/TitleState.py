@@ -2,31 +2,12 @@ from pico2d import *
 from Background import *
 from Button import *
 import GameFramework
-import GameState
 import GameWorld
 
 capture = None
 
 def enter():
-	global background, start_button, des_button, exit_button
-
-	load_sound()
-
-	GameWorld.title_init(["background", "ui"])
-
-	background = Background("Image/Title.png")
-	GameWorld.add(GameWorld.layer.background, background)
-
-	start_button = Button(0, 180, 300, 620, 300, Button.GAME_START, in_rect_wav)
-	GameWorld.add(GameWorld.layer.ui, start_button)
-
-	des_button = Button(0, 90, 300, 620, 200, Button.DESCRIPTION, in_rect_wav)
-	GameWorld.add(GameWorld.layer.ui, des_button)
-
-	exit_button = Button(100, 0, 100, 620, 100, Button.EXIT, in_rect_wav)
-	GameWorld.add(GameWorld.layer.ui, exit_button)
-
-	GameWorld.curr_objects = GameWorld.title_objects
+	build_title_state()
 
 def update():
 	GameWorld.update()
@@ -43,12 +24,26 @@ def handle_event(event):
 	if (handle_mouse(event)):
 		return
 
-def load_sound():
-	global bgm, in_rect_wav
+def build_title_state():
+	GameWorld.title_init(["background", "ui"])
 
+	background = Background("Image/Title.png")
+	GameWorld.add(GameWorld.layer.background, background)
+
+	start_button = Button(0, 180, 300, 620, 300, GAME_START)
+	GameWorld.add(GameWorld.layer.ui, start_button)
+
+	des_button = Button(0, 90, 300, 620, 200, DESCRIPTION)
+	GameWorld.add(GameWorld.layer.ui, des_button)
+
+	exit_button = Button(100, 0, 100, 620, 100, EXIT)
+	GameWorld.add(GameWorld.layer.ui, exit_button)
+
+	GameWorld.curr_objects = GameWorld.title_objects
+
+	global bgm
+	
 	bgm = load_music("SOUND/title theme.mp3")
-	in_rect_wav = load_wav("SOUND/stomp.wav")
-
 	bgm.set_volume(100)
 	bgm.repeat_play()
 
@@ -72,21 +67,20 @@ def handle_mouse(event):
 	return False
 
 def exit():
-	global bgm, in_rect_wav
-
 	Image.unload("Image/Title.png")
 	Image.unload("IMAGE/TitleMenu.png")
 	GameWorld.clear()
 
+	global bgm
+
 	bgm.stop()
 	del bgm
-	del in_rect_wav
 
 def pause():
 	pass
 
 def resume():
-	pass
+	build_title_state()
 
 if (__name__ == "__main__"):
 	GameFramework.run_main()

@@ -1,23 +1,25 @@
 from pico2d import *
 import GameFramework
 import GameState
-import GameWorld
 import GameObject
 import Image
 
+GAME_START, DESCRIPTION, EXIT = range(3)
 LBUTTON_DOWN = (SDL_MOUSEBUTTONDOWN, SDL_BUTTON_LEFT)
 LBUTTON_UP = (SDL_MOUSEBUTTONUP, SDL_BUTTON_LEFT)
 
 class Button:
-	GAME_START, DESCRIPTION, EXIT = range(3)
+	SELECT_WAV = None
 
-	def __init__(self, left, bottom, width, x, y, menu, wav):
+	def __init__(self, left, bottom, width, x, y, menu):
 		self.image = Image.load("IMAGE/TitleMenu.png")
 		self.src_rect = (self.left, self.bottom, self.width, self.height) = (left, bottom, width, 90)
 		self.pos = (x, y)
 		self.menu = menu
 		self.mouse_point = None
-		self.wav = wav
+
+		if (Button.SELECT_WAV == None):
+			Button.SELECT_WAV = load_wav("SOUND/stomp.wav")
 
 	def draw(self):
 		self.image.clip_draw(*self.src_rect, *self.pos)
@@ -33,7 +35,7 @@ class Button:
 				if (GameObject.point_in_rect(GameObject.get_pico2d_pos(event), self.get_bb())):
 					self.mouse_point = GameObject.get_pico2d_pos(event)
 
-					if (self.menu == Button.EXIT): self.left = 400
+					if (self.menu == EXIT): self.left = 400
 					else: self.left = 300
 
 					return self
@@ -43,11 +45,11 @@ class Button:
 				in_rect = GameObject.point_in_rect(mouse_pos, self.get_bb())
 
 				if (in_rect):
-					if (self.menu == Button.EXIT): self.left = 400
+					if (self.menu == EXIT): self.left = 400
 					else: self.left = 300
-					self.wav.play()
+					Button.SELECT_WAV.play()
 				else:
-					if (self.menu == Button.EXIT): self.left = 100
+					if (self.menu == EXIT): self.left = 100
 					else: self.left = 0
 					
 			self.src_rect = (self.left, self.bottom, self.width, self.height)
@@ -60,11 +62,11 @@ class Button:
 			in_rect = GameObject.point_in_rect(mouse_pos, self.get_bb())
 
 			if (in_rect):
-				if (self.menu == Button.GAME_START):
-					GameFramework.change(GameState)
-				elif (self.menu == Button.DESCRIPTION):
+				if (self.menu == GAME_START):
+					GameFramework.push(GameState)
+				elif (self.menu == DESCRIPTION):
 					pass
-				elif (self.menu == Button.EXIT):
+				elif (self.menu == EXIT):
 					GameFramework.quit()
 
 			return False
@@ -74,7 +76,7 @@ class Button:
 			in_rect = GameObject.point_in_rect(mouse_pos, self.get_bb())
 
 			if (in_rect):
-				if (self.menu == Button.EXIT): self.left = 400
+				if (self.menu == EXIT): self.left = 400
 				else: self.left = 300
 				self.src_rect = (self.left, self.bottom, self.width, self.height)
 
