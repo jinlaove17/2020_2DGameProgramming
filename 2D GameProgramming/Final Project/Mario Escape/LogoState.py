@@ -13,7 +13,7 @@ def update():
 
 	elapsed += GameFramework.delta_time
 
-	if (elapsed > 1.0):
+	if (elapsed >= 1.0):
 		GameFramework.change(TitleState)
 
 def draw():
