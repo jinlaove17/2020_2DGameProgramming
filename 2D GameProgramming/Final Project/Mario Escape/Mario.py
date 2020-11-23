@@ -1,17 +1,18 @@
 from pico2d import *
-from Background import *
 import GameFramework
 import GameSprite
 import GameObject
-import GameState
 import GameWorld
 import Image
 
 class Mario:
+	LEFT_IDLE, RIGHT_IDLE, LEFT_RUN, RIGHT_RUN, LEFT_JUMP, RIGHT_JUMP, LEFT_FALLING, RIGHT_FALLING, CLIMB, DIE = range(10)
 	MOVE_PPS = 250
 	GRAVITY = 3000
 	JUMP = 900
-	LEFT_IDLE, RIGHT_IDLE, LEFT_RUN, RIGHT_RUN, LEFT_JUMP, RIGHT_JUMP, LEFT_FALLING, RIGHT_FALLING, CLIMB, DIE = range(10)
+	JUMP_WAV = None
+	LIFE_LOST_WAV = None
+
 	KEY_MAP = {
 		(SDL_KEYDOWN, SDLK_UP):    ( 0,  1),
 		(SDL_KEYDOWN, SDLK_DOWN):  ( 0, -1),
@@ -23,6 +24,7 @@ class Mario:
 		(SDL_KEYUP, SDLK_RIGHT):   (-1,  0)
 	}
 	KEY_SPACE = (SDL_KEYDOWN, SDLK_SPACE)
+
 	IMAGE_RECT = [
 		# Left Idle
 		[ (53, 426, 32, 76), (197, 426, 32, 76), (341, 426, 30, 76) ],
@@ -60,6 +62,12 @@ class Mario:
 		self.FPS = 7
 		self.image = Image.load("IMAGE/Mario.png")
 		self.is_collide = False
+
+		if (Mario.JUMP_WAV == None):
+			Mario.JUMP_WAV = load_wav("SOUND/jump.wav")
+		if (Mario.LIFE_LOST_WAV == None):
+			Mario.LIFE_LOST_WAV = load_wav("SOUND/life lost.wav")
+			Mario.LIFE_LOST_WAV.set_volume(60)
 
 	def draw(self):
 		self.fidx = round(self.time * self.FPS) % len(Mario.IMAGE_RECT[self.state])
@@ -150,11 +158,11 @@ class Mario:
 		if (self.state in [Mario.LEFT_IDLE, Mario.LEFT_RUN]):
 			self.state = Mario.LEFT_JUMP
 			self.falling_speed = Mario.JUMP
-			GameState.jump_wav.play()
+			Mario.JUMP_WAV.play()
 		elif (self.state in [Mario.RIGHT_IDLE, Mario.RIGHT_RUN]):
 			self.state = Mario.RIGHT_JUMP
 			self.falling_speed = Mario.JUMP
-			GameState.jump_wav.play()
+			Mario.JUMP_WAV.play()
 
 	def die(self):
 		(x, y) = self.pos
@@ -166,32 +174,23 @@ class Mario:
 				self.pos = (x, y)
 				self.state = Mario.DIE
 				self.falling_speed = 0
-				GameSprite.UI.LIFE_COUNT -= 1
-				GameState.life_lost_wav.play()
+				Mario.LIFE_LOST_WAV.play()
 			elif (self.is_collide):
 				y += 50
 				self.pos = (x, y)
 				self.state = Mario.DIE
 				self.falling_speed = 0
-				GameSprite.UI.LIFE_COUNT -= 1
-				GameState.life_lost_wav.play()
+				Mario.LIFE_LOST_WAV.play()
 		else:
 			(x, y) = self.pos
 			y = y + self.falling_speed * GameFramework.delta_time
 			self.pos = (x, y)
 			self.delta = (0, 0)
-			self.falling_speed -= Mario.GRAVITY * GameFramework.delta_time // 15
+			self.falling_speed -= Mario.GRAVITY * GameFramework.delta_time // 10
 
-			if (y + h <= 0):
-				self.pos = (100, 300)
-				self.delta = (0, 0)
-				self.state = Mario.RIGHT_RUN
-				self.falling_speed = 0
-				self.is_collide = False
+			if (y + h <= 0): return True
 
-				GameState.STAGE_LEVEL = 1
-				Background.STAGE_LEVEL = 1
-				GameWorld.curr_objects = GameWorld.stage1_objects
+		return False
 
 	def get_bb(self):
 		(x, y) = self.pos
