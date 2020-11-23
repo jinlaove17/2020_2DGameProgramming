@@ -164,10 +164,12 @@ class Obstacle:
 
 class Plant:
 	FPS = 3
+	FALLING_PPS = 300
 	ATTACK_COUNT = 0
 	STATE_CHANGE_COUNT = 0
-	FALLING_PPS = 300
 	IDLE, ATTACK, DIE = range(3)
+	ATTACK_WAV = None
+
 	IMAGE_RECT = [
 		# IDLE
 		[(660, 496, 58, 68), (728, 496, 56, 68), (794, 496, 51, 68)],
@@ -177,7 +179,7 @@ class Plant:
 		[(1081, 496, 48, 68)]
 	]
 
-	def __init__(self, name, x, y, w, h, mario, wav):
+	def __init__(self, name, x, y, w, h, mario):
 		self.name = name
 		self.rect = sprite_rects[name]
 		self.pos = (x, y)
@@ -186,7 +188,9 @@ class Plant:
 		self.fidx = 0
 		self.time = 0
 		self.state = Plant.IDLE
-		self.wav = wav
+
+		if (Plant.ATTACK_WAV == None):
+			Plant.ATTACK_WAV = load_wav("SOUND/plant attack.wav")
 
 	def draw(self):
 		self.time += GameFramework.delta_time
@@ -244,7 +248,7 @@ class Plant:
 		(x, y, dx, dy) = self.get_coords()
 		if (x <= 100): return
 		self.state = Plant.ATTACK
-		self.wav.play()
+		Plant.ATTACK_WAV.play()
 
 		# 78은 Obstacle_Stone의 너비(w)
 		stone = Obstacle("Obstacle_Stone", x, y, 78, 58, dx, dy)
@@ -283,21 +287,25 @@ class Box:
 		return (left, bottom, right, top)
 
 class UI:
-	LIFE_COUNT = 3
-
 	def __init__(self, x, y):
 		self.mario_pos = (x, y)
 		self.life_pos = (x + 55, y + 30)
 		self.coin_pos = (x + 55, y)
-		UI.LIFE_COUNT = 3
+		self.life = 3
 
 	def draw(self):
 		mario_rect = (856, 323, 47, 62)
 		sprite_image.clip_draw_to_origin(*mario_rect, *self.mario_pos)
-		life_rect = (660, 596, 40 * UI.LIFE_COUNT, 24)
+		life_rect = (660, 596, 40 * self.life, 24)
 		sprite_image.clip_draw_to_origin(*life_rect, *self.life_pos)
 		coin_rect = (582, 445, 31, 32)
 		sprite_image.clip_draw_to_origin(*coin_rect, *self.coin_pos, 25, 25)
 
 	def update(self):
 		pass
+
+	def decrease_life(self):
+		self.life -= 1
+
+	def dead(self):
+		return (self.life <= 0)
