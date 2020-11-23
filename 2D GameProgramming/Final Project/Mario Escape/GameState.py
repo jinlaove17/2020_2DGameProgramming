@@ -3,79 +3,41 @@ from Mario import *
 from Background import *
 import GameFramework
 import GameWorld
-import GameSprite
 import GameObject
-import TitleState
+import GameSprite
 import Image
 import Font
 import json
 
+STATE_IN_GAME, STATE_GAME_OVER = range(2)
 STAGE_LEVEL = 0
 TOTAL_COIN_COUNT = 0
 PREV, NEXT = range(2)
 FONT_COLOR = (255, 255, 255)
 
 def enter():
-	GameWorld.game_init(["background", "platform", "coin", "obstacle", "plant", "box", "mario", "ui"])
-	GameSprite.load()
-
-	load_sound()
-	init_stage()
-
-def update():
-	GameWorld.update()
-	check_collision()
-	change_stage()
-
-def draw():
-	global font
-
-	GameWorld.draw()
-	GameObject.draw_collision_box()
-	font.draw(95, get_canvas_height() - 60, "X %d" % TOTAL_COIN_COUNT, FONT_COLOR)
-
-def handle_event(event):
-	if (event.type == SDL_QUIT):
-		GameFramework.quit()
-	elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
-		GameFramework.change(TitleState)
-
-	mario.handle_event(event)
-
-def exit():
-	global font, bgm, start_wav, jump_wav, coin_wav, life_lost_wav, plant_attack_wav, plant_dead_wav
-
-	Image.unload("IMAGE/Mario.png")
-	Image.unload("IMAGE/Sprite.png")
-	Image.unload("IMAGE/Background.png")
-	Font.unload("FONT/koverwatch.ttf", 25)
 	GameWorld.clear()
+	GameSprite.load()
+	load_sound()
 
-	bgm.stop()
-	del bgm
-	del start_wav
-	del jump_wav
-	del coin_wav
-	del life_lost_wav
-	del plant_attack_wav
-	del plant_dead_wav
-
-def pause():
-	pass
-
-def resume():
-	pass
-
-def init_stage():
 	global STAGE_LEVEL, TOTAL_COIN_COUNT
-	global mario, background, ui, font
 
 	STAGE_LEVEL = 1
 	TOTAL_COIN_COUNT = 0
+
+	global state, game_over_image
+
+	state = STATE_IN_GAME
+	game_over_image = load_image("IMAGE/GameOver.png")
+
+	global mario, background, ui, font
+
 	mario = Mario()
 	background = Background("IMAGE/Background.png", mario)
 	ui = GameSprite.UI(10, get_canvas_height() - 72)
 	font = Font.load("FONT/koverwatch.ttf", 25)
+
+	GameWorld.game_init(["background", "platform", "coin", "obstacle", "plant", "box", "mario", "ui"])
 
 	for level in range(1, 5 + 1):
 		with open("JSON/Stage_%d.json" % level) as file:
@@ -90,7 +52,7 @@ def init_stage():
 				elif ("Obstacle" in info["name"]):
 					object = GameSprite.Obstacle(info["name"], info["x"], info["y"], info["w"], info["h"])
 				elif ("Plant" in info["name"]):
-					object = GameSprite.Plant(info["name"], info["x"], info["y"], info["w"], info["h"], mario, plant_attack_wav)
+					object = GameSprite.Plant(info["name"], info["x"], info["y"], info["w"], info["h"], mario)
 				elif ("Box" in info["name"]):
 					object = GameSprite.Box(info["name"], info["x"], info["y"], info["w"], info["h"], mario)
 
@@ -102,21 +64,73 @@ def init_stage():
 			
 	GameWorld.curr_objects = GameWorld.stage1_objects
 
+def update():
+	global state
+
+	if (state == STATE_GAME_OVER): return
+
+	GameWorld.update()
+	check_collision()
+	change_stage()
+
+	if (ui.dead()): end_game()
+
+def draw():
+	GameWorld.draw()
+	GameObject.draw_collision_box()
+
+	font.draw(95, get_canvas_height() - 60, "X %d" % TOTAL_COIN_COUNT, FONT_COLOR)
+
+	if (state == STATE_GAME_OVER):
+		game_over_image.draw(400, 300, get_canvas_width(), get_canvas_height())
+
+def handle_event(event):
+	if (event.type == SDL_QUIT):
+		GameFramework.quit()
+	elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
+		GameFramework.pop()
+
+	mario.handle_event(event)
+
+def exit():
+	global bgm, start_wav, coin_wav, plant_dead_wav
+
+	Image.unload("IMAGE/Mario.png")
+	Image.unload("IMAGE/Sprite.png")
+	Image.unload("IMAGE/Background.png")
+	Font.unload("FONT/koverwatch.ttf", 25)
+	GameWorld.clear()
+
+	bgm.stop()
+	del bgm
+	del start_wav
+	del coin_wav
+	del plant_dead_wav
+
+def pause():
+	pass
+
+def resume():
+	pass
+
+def end_game():
+	global state, mario
+	
+	state = STATE_GAME_OVER
+	mario.LIFE_LOST_WAV.set_volume(0)
+	game_over_wav.play()
+
 def load_sound():
-	global bgm, start_wav, jump_wav, coin_wav, life_lost_wav, spike_wav, plant_attack_wav, plant_dead_wav
+	global bgm, start_wav, coin_wav, plant_dead_wav, game_over_wav
 
 	bgm = load_music("SOUND/cave dungeon.mp3")
 	start_wav = load_wav("SOUND/game start.wav")
-	jump_wav = load_wav("SOUND/jump.wav")
 	coin_wav = load_wav("SOUND/coin.wav")
-	life_lost_wav = load_wav("SOUND/life lost.wav")
-	#spike_wav = load_wav("SOUND/spike.wav")
-	plant_attack_wav = load_wav("SOUND/plant attack.wav")
-	plant_dead_wav = load_wav("SOUND/plant dead.wav")
+	plant_dead_wav= load_wav("SOUND/plant dead.wav")
+	game_over_wav = load_wav("SOUND/game over.wav")
 
 	bgm.set_volume(100)
 	bgm.repeat_play()
-	life_lost_wav.set_volume(60)
 	start_wav.play()
 
 def check_collision():
@@ -166,13 +180,26 @@ def set_stage(stage):
 
 	if (stage == PREV):
 		STAGE_LEVEL -= 1
-		Background.STAGE_LEVEL -= 1
 	elif (stage == NEXT):
 		STAGE_LEVEL += 1
-		Background.STAGE_LEVEL += 1
+
+	background.set_stage_level(STAGE_LEVEL)
 
 def change_stage():
-	global STAGE_LEVEL, mario
+	global STAGE_LEVEL
+	global mario
+
+	if (mario.die()):
+		mario.pos = (100, 300)
+		mario.delta = (0, 0)
+		mario.state = Mario.RIGHT_RUN
+		mario.falling_speed = 0
+		mario.is_collide = False
+		STAGE_LEVEL = 1
+		ui.decrease_life()
+		background.set_stage_level(1)
+		GameWorld.curr_objects = GameWorld.stage1_objects
+		return
 
 	(x, y) = mario.pos
 	hw = Mario.IMAGE_RECT[mario.state][mario.fidx % len(Mario.IMAGE_RECT[mario.state])][2] // 2
