@@ -89,6 +89,7 @@ class Obstacle:
 		(673, 316, 64, 49),
 		(761, 316, 68, 79)
 	]
+	SPIKE_WAV = None
 
 	def __init__(self, name, x, y, w, h, dx=0, dy=0):
 		self.name = name
@@ -116,6 +117,9 @@ class Obstacle:
 				self.radius = 280
 				self.radian = 0
 
+		if (Obstacle.SPIKE_WAV == None):
+			Obstacle.SPIKE_WAV = load_wav("SOUND/spike.wav")
+
 	def draw(self):
 		self.time += GameFramework.delta_time
 		self.rad += GameFramework.delta_time
@@ -126,47 +130,50 @@ class Obstacle:
 			sprite_image.clip_composite_draw(*self.rect, self.rad, ' ', *self.pos, *self.size)
 		elif ("Spike" in self.name):
 			FPS = 1
-			self.fidx = round(self.time * FPS) % 3
+			self.fidx = round(self.time * FPS) % len(Obstacle.IMAGE_RECT_SPIKE)
 			sprite_image.clip_draw_to_origin(*Obstacle.IMAGE_RECT_SPIKE[self.fidx], *self.pos)
-		elif ("Stone" in self.name):
+
+		elif ("Stone" in self.name or "Bullet" in self.name):
 			sprite_image.clip_draw(*self.rect, *self.pos)
 
 	def update(self):
+		(x, y) = self.pos
+		(w, h) = self.size
+		
+		x += self.dx * Obstacle.FALLING_PPS * GameFramework.delta_time
+		y += self.dy * Obstacle.FALLING_PPS * GameFramework.delta_time
+		
+		self.pos = (x, y)
+		
 		if ("Stone" in self.name):
-			(x, y) = self.pos
-			(w, h) = self.size
-
-			x += self.dx * Obstacle.FALLING_PPS * GameFramework.delta_time
-			y += self.dy * Obstacle.FALLING_PPS * GameFramework.delta_time
-
-			self.pos = (x, y)
-
 			if (y < -h):
+				GameWorld.remove(self)
+		elif ("Bullet" in self.name):
+			if (x < -w):
 				GameWorld.remove(self)
 
 	def get_bb(self):
 		(x, y) = self.pos
 
-		if ("FireBar" in self.name or "Stone" in self.name):
-			(w, h) = self.size
-			left = x - w // 2
-			bottom = y - h // 2
-			right = x + w // 2
-			top = y + h // 2
-		else:
+		if ("Spike" in self.name):
 			(w, h) = (Obstacle.IMAGE_RECT_SPIKE[self.fidx][2], Obstacle.IMAGE_RECT_SPIKE[self.fidx][3])
 			left = x
 			bottom = y
 			right = x + w
 			top = y + h
+		else:
+			(w, h) = self.size
+			left = x - w // 2
+			bottom = y - h // 2
+			right = x + w // 2
+			top = y + h // 2
 
 		return (left, bottom, right, top)
 
 class Plant:
-	FPS = 3
+	FPS = 4
 	FALLING_PPS = 300
 	ATTACK_COUNT = 0
-	STATE_CHANGE_COUNT = 0
 	IDLE, ATTACK, DIE = range(3)
 	ATTACK_WAV = None
 
@@ -198,33 +205,28 @@ class Plant:
 		sprite_image.clip_draw(*Plant.IMAGE_RECT[self.state][self.fidx], *self.pos)
 
 	def update(self):
-		if (self.state != Plant.DIE):
+		if (self.state == Plant.IDLE):
 			Plant.ATTACK_COUNT += Plant.FPS * GameFramework.delta_time
 
-		if (Plant.ATTACK_COUNT >= 5):
-			Plant.ATTACK_COUNT = 0
-			attacks = random.choice([True, False])
-			if (attacks): self.attack()
+			if (Plant.ATTACK_COUNT >= 5):
+				Plant.ATTACK_COUNT = 0
+				attacks = random.choice([True, False])
 
-		if (self.state == Plant.ATTACK):
-			Plant.STATE_CHANGE_COUNT += Plant.FPS * GameFramework.delta_time
-
-			if (Plant.STATE_CHANGE_COUNT >= 3):
-				Plant.STATE_CHANGE_COUNT = 0
-				self.state = Plant.IDLE
+				if (attacks): self.state = Plant.ATTACK
+			
+		if (self.state == Plant.ATTACK and self.fidx == len(Plant.IMAGE_RECT[self.state]) - 1):
+			self.attack()
+			self.state = Plant.IDLE
 		elif (self.state == Plant.DIE):
 			(x, y) = self.pos
 			(dx, dy) = (0, -1)
-			h = Plant.IMAGE_RECT[self.state][self.fidx][3] // 2
 
+			h = Plant.IMAGE_RECT[self.state][self.fidx][3] // 2
 			x += dx * Plant.FALLING_PPS * GameFramework.delta_time
 			y += dy * Plant.FALLING_PPS * GameFramework.delta_time
-
 			self.pos = (x, y)
 
-			if (y < -h):
-				GameWorld.remove(self)
-				print("plant removed!")
+			if (y < -h): GameWorld.remove(self)
 
 	def get_bb(self):
 		(x, y) = self.pos
@@ -246,8 +248,7 @@ class Plant:
 
 	def attack(self):
 		(x, y, dx, dy) = self.get_coords()
-		if (x <= 100): return
-		self.state = Plant.ATTACK
+		if (x < 100): return
 		Plant.ATTACK_WAV.play()
 
 		# 78은 Obstacle_Stone의 너비(w)
@@ -309,3 +310,95 @@ class UI:
 
 	def dead(self):
 		return (self.life <= 0)
+
+class Cannon:
+	FPS = 7
+	ATTACK_COUNT = 0
+	IDLE, ATTACK = range(2)
+	LEFT, RIGHT = range(2)
+
+	IMAGE_RECT = [
+		# IDLE
+		[(768, 260, 37, 32)],
+		# ATTACK
+		[(850, 260, 38, 32), (928, 260, 41, 32), (1007, 260, 43, 32), (769, 216, 53, 32), (850, 216, 58, 32), (928, 216, 61, 32)]
+	]
+
+	def __init__(self, name, x, y):
+		self.name = name
+		self.rect = sprite_rects[name]
+		self.pos = (x, y)
+		self.state = Cannon.IDLE
+		self.time = 0
+		self.fidx = 0
+
+	def draw(self):
+		self.time += GameFramework.delta_time
+		self.fidx = round(self.time * Cannon.FPS) % len(Cannon.IMAGE_RECT[self.state])
+		sprite_image.clip_draw(*Cannon.IMAGE_RECT[self.state][self.fidx], *self.pos)
+
+	def update(self):
+		if (self.state == Cannon.IDLE):
+			Cannon.ATTACK_COUNT += Cannon.FPS * GameFramework.delta_time
+
+			if (Cannon.ATTACK_COUNT >= 3):
+				Cannon.ATTACK_COUNT = 0
+				attacks = random.choice([True, False])
+
+				if (attacks):
+					self.state = Cannon.ATTACK
+
+		if (self.state == Cannon.ATTACK and self.fidx == len(Cannon.IMAGE_RECT[self.state]) - 1):
+			self.attack()
+			self.state = Cannon.IDLE
+
+	def get_bb(self):
+		(x, y) = self.pos
+		(w, h) = (Cannon.IMAGE_RECT[self.state][self.fidx][2] // 2, Cannon.IMAGE_RECT[self.state][self.fidx][3] // 2)
+
+		left = x - w
+		bottom = y - h
+		right = x + w
+		top = y + h
+
+		return (left, bottom, right, top)
+
+	def get_coords(self):
+		(x, y) = self.pos
+		x -= 14
+		(dx, dy) = (-1, 0)
+
+		return (x, y, dx, dy)
+
+	def attack(self):
+		(x, y, dx, dy) = self.get_coords()
+		Plant.ATTACK_WAV.play()
+
+		# 78은 Obstacle_Stone의 너비(w)
+		bullet = Obstacle("Obstacle_Bullet", x, y, 27, 19, dx, dy)
+		GameWorld.add(GameWorld.layer.obstacle, bullet, 5)
+
+class Door:
+	OPENS = False
+
+	def __init__(self, name, x, y):
+		self.name = name
+		self.pos = (x, y)
+		self.close_rect = (580, 216, 64, 63)
+		self.open_rect = (670, 216, 64, 63)
+
+	def __del__(self):
+		Door.OPENS = False
+
+	def draw(self):
+		if (not Door.OPENS):
+			sprite_image.clip_draw_to_origin(*self.close_rect, *self.pos)
+		else:
+			sprite_image.clip_draw_to_origin(*self.open_rect, *self.pos)
+
+	def update(self):
+		pass
+
+	@staticmethod
+	def open_door():
+		Door.OPENS = True

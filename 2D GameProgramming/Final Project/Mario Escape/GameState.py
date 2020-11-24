@@ -36,7 +36,7 @@ def enter():
 	ui = GameSprite.UI(10, get_canvas_height() - 72)
 	font = Font.load("FONT/koverwatch.ttf", 25)
 
-	GameWorld.game_init(["background", "platform", "coin", "obstacle", "plant", "box", "mario", "ui"])
+	GameWorld.game_init(["background", "platform", "coin", "box", "plant", "cannon", "obstacle", "Door", "mario", "ui"])
 
 	for level in range(1, 5 + 1):
 		with open("JSON/Stage_%d.json" % level) as file:
@@ -54,6 +54,10 @@ def enter():
 					object = GameSprite.Plant(info["name"], info["x"], info["y"], info["w"], info["h"], mario)
 				elif ("Box" in info["name"]):
 					object = GameSprite.Box(info["name"], info["x"], info["y"], info["w"], info["h"], mario)
+				elif ("Cannon" in info["name"]):
+					object = GameSprite.Cannon(info["name"], info["x"], info["y"])
+				elif ("Door" in info["name"]):
+					object = GameSprite.Door(info["name"], info["x"], info["y"])
 
 				GameWorld.add(info["layer_index"], object, level)
 		
@@ -65,9 +69,11 @@ def enter():
 	load_sound()
 
 def update():
+	global TOTAL_COIN_COUNT
 	global state
 
 	if (state == STATE_GAME_OVER): return
+	if (TOTAL_COIN_COUNT == 0): GameSprite.Door.open_door()
 
 	GameWorld.update()
 	check_collision()
@@ -150,7 +156,7 @@ def check_collision():
 
 	for obstacle in GameWorld.objects_at(GameWorld.layer.obstacle):
 		if GameObject.collides_box(mario, obstacle):
-			mario.is_collide = True
+			#mario.is_collide = True
 			break
 
 	for plant in GameWorld.objects_at(GameWorld.layer.plant):
@@ -158,11 +164,11 @@ def check_collision():
 			mario.is_collide = True
 			break
 
-	for box in GameWorld.objects_at(GameWorld.layer.box):
-		if GameObject.collides_box(mario, box):
-			box.is_collide = True
-		else:
-			box.is_collide = False
+	#for box in GameWorld.objects_at(GameWorld.layer.box):
+	#	if GameObject.collides_box(mario, box):
+	#		box.is_collide = True
+	#	else:
+	#		box.is_collide = False
 
 	for obstacle in GameWorld.objects_at(GameWorld.layer.obstacle):
 		if ("Stone" in obstacle.name):
@@ -248,7 +254,11 @@ def change_stage():
 		elif (x > get_canvas_width() - hw):
 			x = get_canvas_width() - hw
 	elif (STAGE_LEVEL == 5):
-		if (y < hh):
+		if (x < hw):
+			x = hw
+		elif (x > get_canvas_width() - hw):
+			x = get_canvas_width() - hw
+		elif (y < hh):
 			y = get_canvas_width() - hh
 			mario.delta = (0, 0)
 			STAGE_LEVEL = 3
