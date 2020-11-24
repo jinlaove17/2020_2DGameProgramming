@@ -11,13 +11,16 @@
   "Box": [ 580, 571, 49, 49 ],
   "RandomBox": [ 580, 502, 49, 49 ],
   "Heart": [ 660, 596, 104, 24 ],
+  "Door": [ 580, 216, 154, 63 ],
   "Obstacle_FireBar_1": [ 21, 78, 114, 142 ],
   "Obstacle_FireBar_2": [ 165, 80, 106, 127 ],
   "Obstacle_FireBar_3": [ 284, 47, 152, 153 ],
   "Obstacle_FireBar_4": [ 463, 59, 110, 125 ],
   "Obstacle_FireBar_5": [ 608, 40, 112, 144 ],
   "Obstacle_Stone": [ 580, 362, 78, 58 ],
+  "Obstacle_Bullet": [ 1008, 219, 27, 19 ],
+  "Obstacle_Spike": [],
   "Coin": [],
   "Plant": [],
-  "Obstacle_Spike": []
+  "Cannon": []
 }
