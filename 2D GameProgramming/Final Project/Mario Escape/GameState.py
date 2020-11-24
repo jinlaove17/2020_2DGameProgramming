@@ -156,7 +156,7 @@ def check_collision():
 
 	for obstacle in GameWorld.objects_at(GameWorld.layer.obstacle):
 		if GameObject.collides_box(mario, obstacle):
-			#mario.is_collide = True
+			mario.is_collide = True
 			break
 
 	for plant in GameWorld.objects_at(GameWorld.layer.plant):
