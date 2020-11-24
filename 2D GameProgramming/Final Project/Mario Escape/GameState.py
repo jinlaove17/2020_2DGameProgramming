@@ -18,7 +18,6 @@ FONT_COLOR = (255, 255, 255)
 def enter():
 	GameWorld.clear()
 	GameSprite.load()
-	load_sound()
 
 	global STAGE_LEVEL, TOTAL_COIN_COUNT
 
@@ -63,6 +62,7 @@ def enter():
 		GameWorld.add(GameWorld.layer.ui, ui, level)
 			
 	GameWorld.curr_objects = GameWorld.stage1_objects
+	load_sound()
 
 def update():
 	global state
@@ -118,6 +118,7 @@ def end_game():
 	
 	state = STATE_GAME_OVER
 	mario.LIFE_LOST_WAV.set_volume(0)
+	game_over_wav.set_volume(100)
 	game_over_wav.play()
 
 def load_sound():
@@ -132,6 +133,10 @@ def load_sound():
 	bgm.set_volume(100)
 	bgm.repeat_play()
 	start_wav.play()
+
+	global mario
+
+	mario.LIFE_LOST_WAV.set_volume(80)
 
 def check_collision():
 	global TOTAL_COIN_COUNT
