@@ -161,7 +161,7 @@
   },
   {
     "name": "Obstacle_Spike",
-    "layer_index": 3,
+    "layer_index": 6,
     "x": 400,
     "y": 100,
     "w": null,
