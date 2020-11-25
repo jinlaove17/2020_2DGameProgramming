@@ -89,7 +89,6 @@ class Obstacle:
 		(673, 316, 64, 49),
 		(761, 316, 68, 79)
 	]
-	SPIKE_WAV = None
 
 	def __init__(self, name, x, y, w, h, dx=0, dy=0):
 		self.name = name
@@ -116,9 +115,6 @@ class Obstacle:
 			elif ("FireBar_5" in self.name):
 				self.radius = 280
 				self.radian = 0
-
-		if (Obstacle.SPIKE_WAV == None):
-			Obstacle.SPIKE_WAV = load_wav("SOUND/spike.wav")
 
 	def draw(self):
 		self.time += GameFramework.delta_time
@@ -316,6 +312,7 @@ class Cannon:
 	ATTACK_COUNT = 0
 	IDLE, ATTACK = range(2)
 	LEFT, RIGHT = range(2)
+	ATTACK_WAV = None
 
 	IMAGE_RECT = [
 		# IDLE
@@ -331,6 +328,9 @@ class Cannon:
 		self.state = Cannon.IDLE
 		self.time = 0
 		self.fidx = 0
+
+		if (Cannon.ATTACK_WAV == None):
+			Cannon.ATTACK_WAV = load_wav("SOUND/cannon attack.wav")
 
 	def draw(self):
 		self.time += GameFramework.delta_time
@@ -372,7 +372,7 @@ class Cannon:
 
 	def attack(self):
 		(x, y, dx, dy) = self.get_coords()
-		Plant.ATTACK_WAV.play()
+		Cannon.ATTACK_WAV.play()
 
 		# 78은 Obstacle_Stone의 너비(w)
 		bullet = Obstacle("Obstacle_Bullet", x, y, 27, 19, dx, dy)
