@@ -57,7 +57,7 @@ class Coin:
 		(747, 445, 30, 32),
 	]
 
-	def __init__(self, name, x, y, w, h):
+	def __init__(self, name, x, y):
 		self.name = name
 		self.pos = (x, y)
 		self.fidx = 0
@@ -182,12 +182,11 @@ class Plant:
 		[(1081, 496, 48, 68)]
 	]
 
-	def __init__(self, name, x, y, w, h, mario):
+	def __init__(self, name, x, y, mario):
 		self.name = name
 		self.rect = sprite_rects[name]
 		self.pos = (x, y)
 		self.mario = mario
-		self.size = (w, h)
 		self.fidx = 0
 		self.time = 0
 		self.state = Plant.IDLE
@@ -384,6 +383,7 @@ class Door:
 	def __init__(self, name, x, y):
 		self.name = name
 		self.pos = (x, y)
+		self.size = (64, 63)
 		self.close_rect = (580, 216, 64, 63)
 		self.open_rect = (670, 216, 64, 63)
 
@@ -398,6 +398,17 @@ class Door:
 
 	def update(self):
 		pass
+
+	def get_bb(self):
+		(x, y) = self.pos
+		(w, h) = self.size
+
+		left = x
+		bottom = y
+		right =  x + w
+		top =  y + h
+
+		return (left, bottom, right, top)
 
 	@staticmethod
 	def open_door():

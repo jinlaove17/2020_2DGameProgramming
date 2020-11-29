@@ -139,8 +139,10 @@ class Mario:
 							(_, foot, _, _) = self.get_bb()
 							print("[Foot] : ", foot, ", [Top] : ", top)
 
-							if (ddy > 0 and foot >= top): break
-							if (ddy < 0 and foot <= bottom): break
+							if (ddy > 0 and foot >= top):
+								break
+							if (ddy < 0 and foot <= bottom):
+								break
 							# 위의 조건식을 써도 KEY_DOWN일 때는 문제가 되지 않는데, KEY_UP이 일어나면서 문제 발생
 							
 							dy += ddy
@@ -188,7 +190,8 @@ class Mario:
 			self.delta = (0, 0)
 			self.falling_speed -= Mario.GRAVITY * GameFramework.delta_time // 10
 
-			if (y + h <= 0): return True
+			if (y + h <= 0):
+				return True
 
 		return False
 
@@ -210,8 +213,10 @@ class Mario:
 
 		for platform in GameWorld.objects_at(GameWorld.layer.platform):
 			left, bottom, right, top = platform.get_bb()
-			if (x < left or x > right): continue
-			if (foot < top - 20): continue
+			if (x < left or x > right):
+				continue
+			if (foot < top - 20):
+				continue
 			if (selected == None):
 				selected = platform
 				select_top = top
