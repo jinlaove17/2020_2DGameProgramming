@@ -30,7 +30,7 @@ class Button:
 	def __init__(self, x, y, menu):
 		self.pos = (x, y)
 		self.menu = menu
-		self.rect = Button.ON_IMAGE_RECT[self.menu]
+		self.rect = Button.OFF_IMAGE_RECT[self.menu]
 		self.image = Image.load("IMAGE/TitleMenu.png")
 		self.mouse_point = None
 
