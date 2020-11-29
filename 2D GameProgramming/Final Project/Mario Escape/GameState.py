@@ -103,6 +103,29 @@ def handle_event(event):
 	elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
 		GameFramework.pop()
 
+	global STAGE_LEVEL
+	if event.type == SDL_KEYDOWN:
+		if event.key == SDLK_1:
+			mario.pos = (100, 200)
+			STAGE_LEVEL = 1
+			GameWorld.curr_objects = GameWorld.stage1_objects
+		elif event.key == SDLK_2:
+			mario.pos = (100, 200)
+			STAGE_LEVEL = 2
+			GameWorld.curr_objects = GameWorld.stage2_objects
+		elif event.key == SDLK_3:
+			mario.pos = (750, 200)
+			STAGE_LEVEL = 3
+			GameWorld.curr_objects = GameWorld.stage3_objects
+		elif event.key == SDLK_4:
+			mario.pos = (100, 200)
+			STAGE_LEVEL = 4
+			GameWorld.curr_objects = GameWorld.stage4_objects
+		elif event.key == SDLK_5:
+			mario.pos = (100, 200)
+			STAGE_LEVEL = 5
+			GameWorld.curr_objects = GameWorld.stage5_objects
+
 	mario.handle_event(event)
 
 def exit():
