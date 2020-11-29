@@ -20,8 +20,6 @@ def draw():
 	background.draw(400, 300)
 
 def handle_event(event):
-	global running
-
 	if (event.type == SDL_QUIT):
 		GameFramework.quit()
 	elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
