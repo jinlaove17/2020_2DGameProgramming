@@ -249,7 +249,7 @@ def change_stage():
 			set_stage(NEXT)
 			GameWorld.curr_objects = GameWorld.stage4_objects
 		elif ((730 < x and x < get_canvas_width()) and (y > get_canvas_height())):
-			y = hh
+			y = 2 * hh
 			# mario.delta = (0, 0)
 			STAGE_LEVEL = 5
 			GameWorld.curr_objects = GameWorld.stage5_objects
@@ -265,12 +265,12 @@ def change_stage():
 			x = hw
 		elif (x > get_canvas_width() - hw):
 			x = get_canvas_width() - hw
-		elif (y < hh):
-			y = get_canvas_width() - hh
-			mario.delta = (0, 0)
+		elif (y <= hh * 3 // 2):
+			y = get_canvas_height() - hh
+ 			# mario.delta = (0, 0)
 			STAGE_LEVEL = 3
 			GameWorld.curr_objects = GameWorld.stage3_objects
-			
+
 	mario.pos = (x, y)
 
 if (__name__ == "__main__"):
