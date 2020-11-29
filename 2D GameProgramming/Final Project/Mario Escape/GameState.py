@@ -209,7 +209,7 @@ def change_stage():
 
 	if (mario.die()):
 		mario.pos = (100, 300)
-		mario.delta = (0, 0)
+		# mario.delta = (0, 0)
 		mario.state = Mario.RIGHT_RUN
 		mario.falling_speed = 0
 		mario.is_collide = False
