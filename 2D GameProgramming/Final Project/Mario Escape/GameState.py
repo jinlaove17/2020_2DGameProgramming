@@ -47,6 +47,8 @@ def enter():
 				if obj is None:
 					print("Not created:", info["name"])
 					continue
+				if isinstance(obj, GameSprite.Coin):
+					TOTAL_COIN_COUNT += 1
 				# obj = clazz(info["name"], info["x"], info["y"], info["w"], info["h"])
 				# if ("Tile" in info["name"] or "Ladder" in info["name"]):
 				# 	object = GameSprite.Platform(info["name"], info["x"], info["y"], info["w"], info["h"])
@@ -69,7 +71,7 @@ def enter():
 		GameWorld.add(GameWorld.layer.mario, mario, level)
 		GameWorld.add(GameWorld.layer.background, background, level)
 		GameWorld.add(GameWorld.layer.ui, ui, level)
-			
+
 	GameWorld.curr_objects = GameWorld.stage1_objects
 	load_sound()
 
