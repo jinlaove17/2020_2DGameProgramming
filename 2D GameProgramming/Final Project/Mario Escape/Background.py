@@ -18,7 +18,7 @@ class Background:
         # TitleState Background
         else:                   
             (w, h) = (get_canvas_width(), get_canvas_height())
-            rect = (250, 80, w, h)
+            rect = (200, 80, w, h)
             pos = (0, 0)
             self.image.clip_draw_to_origin(*rect, *pos)
 

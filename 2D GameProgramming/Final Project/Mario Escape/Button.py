@@ -9,20 +9,36 @@ LBUTTON_DOWN = (SDL_MOUSEBUTTONDOWN, SDL_BUTTON_LEFT)
 LBUTTON_UP = (SDL_MOUSEBUTTONUP, SDL_BUTTON_LEFT)
 
 class Button:
+	OFF_IMAGE_RECT = [
+		# GAME START
+		(19, 130, 258, 35),
+		# DESCRIPTION
+		(15, 70, 267, 35),
+		# EXIT
+		(100, 10, 96, 35)
+		]
+	ON_IMAGE_RECT = [
+		# GAME START
+		(315, 128, 263, 39),
+		# DESCRIPTION
+		(310, 69, 273, 39),
+		# EXIT
+		(395, 8, 103, 39)
+		]
 	SELECT_WAV = None
 
-	def __init__(self, left, bottom, width, x, y, menu):
-		self.image = Image.load("IMAGE/TitleMenu.png")
-		self.src_rect = (self.left, self.bottom, self.width, self.height) = (left, bottom, width, 90)
+	def __init__(self, x, y, menu):
 		self.pos = (x, y)
 		self.menu = menu
+		self.rect = Button.ON_IMAGE_RECT[self.menu]
+		self.image = Image.load("IMAGE/TitleMenu.png")
 		self.mouse_point = None
 
 		if (Button.SELECT_WAV == None):
 			Button.SELECT_WAV = load_wav("SOUND/stomp.wav")
 
 	def draw(self):
-		self.image.clip_draw(*self.src_rect, *self.pos)
+		self.image.clip_draw(*self.rect, *self.pos)
 
 	def update(self):
 		pass
@@ -34,9 +50,7 @@ class Button:
 			if (pair == LBUTTON_DOWN):
 				if (GameObject.point_in_rect(GameObject.get_pico2d_pos(event), self.get_bb())):
 					self.mouse_point = GameObject.get_pico2d_pos(event)
-
-					if (self.menu == EXIT): self.left = 400
-					else: self.left = 300
+					self.rect = Button.ON_IMAGE_RECT[self.menu]
 
 					return self
 
@@ -45,15 +59,11 @@ class Button:
 				in_rect = GameObject.point_in_rect(mouse_pos, self.get_bb())
 
 				if (in_rect):
-					if (self.menu == EXIT): self.left = 400
-					else: self.left = 300
+					self.rect = Button.ON_IMAGE_RECT[self.menu]
 					Button.SELECT_WAV.play()
 				else:
-					if (self.menu == EXIT): self.left = 100
-					else: self.left = 0
+					self.rect = Button.OFF_IMAGE_RECT[self.menu]
 					
-			self.src_rect = (self.left, self.bottom, self.width, self.height)
-
 			return False
 
 		if (pair == LBUTTON_UP):
@@ -71,20 +81,9 @@ class Button:
 
 			return False
 
-		if (event.type == SDL_MOUSEMOTION):
-			mouse_pos = GameObject.get_pico2d_pos(event)
-			in_rect = GameObject.point_in_rect(mouse_pos, self.get_bb())
-
-			if (in_rect):
-				if (self.menu == EXIT): self.left = 400
-				else: self.left = 300
-				self.src_rect = (self.left, self.bottom, self.width, self.height)
-
-			return False
-
 	def get_bb(self):
 		(x, y) = self.pos
-		(w, h) = (self.width, self.height)
+		(w, h) = (self.rect[2], self.rect[3])
 
 		left = x - w // 2 
 		bottom = y - h // 2
