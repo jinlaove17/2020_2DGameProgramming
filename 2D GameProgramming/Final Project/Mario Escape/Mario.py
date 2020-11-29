@@ -107,14 +107,14 @@ class Mario:
 					(x, y) = self.pos
 					y = y + (top - foot)
 					self.pos = (x, y)
-					self.state = Mario.LEFT_RUN
+					self.state = Mario.LEFT_RUN if dx < 0 else Mario.LEFT_IDLE
 					self.falling_speed = 0
 			elif (self.state == Mario.RIGHT_FALLING or self.state == Mario.RIGHT_JUMP):
 				if (self.falling_speed < 0 and int(foot) <= top):
 					(x, y) = self.pos
 					y = y + (top - foot)
 					self.pos = (x, y)
-					self.state = Mario.RIGHT_RUN
+					self.state = Mario.RIGHT_RUN if dx > 0 else Mario.RIGHT_IDLE
 					self.falling_speed = 0
 
 		self.update_ladder()
