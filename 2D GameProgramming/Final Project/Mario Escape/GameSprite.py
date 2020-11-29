@@ -30,6 +30,10 @@ def createObject(info, mario):
 	elif ("Coin" in info["name"]):
 		obj = Coin(info["name"], info["x"], info["y"], info["w"], info["h"])
 		# TOTAL_COIN_COUNT += 1
+	elif ("Obstacle_FireBar" in info["name"]):
+		obj = FireBarObstacle(info["name"], info["x"], info["y"], info["w"], info["h"])
+	elif ("Obstacle_Spike" in info["name"]):
+		obj = SpikeObstacle(info["name"], info["x"], info["y"], info["w"], info["h"])
 	elif ("Obstacle" in info["name"]):
 		obj = Obstacle(info["name"], info["x"], info["y"], info["w"], info["h"])
 	elif ("Plant" in info["name"]):
@@ -105,11 +109,6 @@ class Coin:
 
 class Obstacle:
 	FALLING_PPS = 300
-	IMAGE_RECT_SPIKE = [
-		(585, 316, 61, 25),
-		(673, 316, 64, 49),
-		(761, 316, 68, 79)
-	]
 	ROTATIONS = {
 		"Obstacle_FireBar_1": (280, math.pi),
 		"Obstacle_FireBar_2": (140, math.pi),
@@ -152,17 +151,10 @@ class Obstacle:
 		self.time += GameFramework.delta_time
 		self.rad += GameFramework.delta_time
 		self.radian += GameFramework.delta_time
+		self.drawImage()
 
-		if ("FireBar" in self.name):
-			self.pos = (400 + self.radius * math.cos(self.radian), 250 + self.radius * math.sin(self.radian))
-			sprite_image.clip_composite_draw(*self.rect, self.rad, ' ', *self.pos, *self.size)
-		elif ("Spike" in self.name):
-			FPS = 1
-			self.fidx = round(self.time * FPS) % len(Obstacle.IMAGE_RECT_SPIKE)
-			sprite_image.clip_draw_to_origin(*Obstacle.IMAGE_RECT_SPIKE[self.fidx], *self.pos)
-
-		elif ("Stone" in self.name or "Bullet" in self.name):
-			sprite_image.clip_draw(*self.rect, *self.pos)
+	def drawImage(self):
+		sprite_image.clip_draw(*self.rect, *self.pos)
 
 	def update(self):
 		(x, y) = self.pos
@@ -183,18 +175,37 @@ class Obstacle:
 	def get_bb(self):
 		(x, y) = self.pos
 
-		if ("Spike" in self.name):
-			(w, h) = (Obstacle.IMAGE_RECT_SPIKE[self.fidx][2], Obstacle.IMAGE_RECT_SPIKE[self.fidx][3])
-			left = x
-			bottom = y
-			right = x + w
-			top = y + h
-		else:
-			(w, h) = self.size
-			left = x - w // 2
-			bottom = y - h // 2
-			right = x + w // 2
-			top = y + h // 2
+		(w, h) = self.size
+		left = x - w // 2
+		bottom = y - h // 2
+		right = x + w // 2
+		top = y + h // 2
+
+		return (left, bottom, right, top)
+
+class FireBarObstacle(Obstacle):
+	def drawImage(self):	
+		self.pos = (400 + self.radius * math.cos(self.radian), 250 + self.radius * math.sin(self.radian))
+		sprite_image.clip_composite_draw(*self.rect, self.rad, ' ', *self.pos, *self.size)
+
+class SpikeObstacle(Obstacle):
+	IMAGE_RECT_SPIKE = [
+		(585, 316, 61, 25),
+		(673, 316, 64, 49),
+		(761, 316, 68, 79)
+	]
+	def drawImage(self):	
+		FPS = 1
+		self.fidx = round(self.time * FPS) % len(SpikeObstacle.IMAGE_RECT_SPIKE)
+		sprite_image.clip_draw_to_origin(*SpikeObstacle.IMAGE_RECT_SPIKE[self.fidx], *self.pos)
+
+	def get_bb(self):
+		(x, y) = self.pos
+		(_, _, w, h) = SpikeObstacle.IMAGE_RECT_SPIKE[self.fidx]
+		left = x
+		bottom = y
+		right = x + w
+		top = y + h
 
 		return (left, bottom, right, top)
 
