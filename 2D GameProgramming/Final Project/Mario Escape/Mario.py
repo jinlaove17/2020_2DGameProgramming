@@ -80,7 +80,6 @@ class Mario:
 			x += dx * Mario.MOVE_PPS * GameFramework.delta_time
 		self.pos = (x, y)
 		self.time += GameFramework.delta_time
-		self.die()
 
 		if (self.state in [Mario.LEFT_JUMP, Mario.RIGHT_JUMP, Mario.LEFT_FALLING, Mario.RIGHT_FALLING]):
 			(x, y) = self.pos

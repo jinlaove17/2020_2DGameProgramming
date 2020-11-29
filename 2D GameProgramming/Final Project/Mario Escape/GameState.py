@@ -234,6 +234,8 @@ def change_stage():
 	global mario
 
 	if (mario.die()):
+		ui.decrease_life()
+
 		if (ui.life <= 0):
 			GameWorld.remove(mario)
 			return
