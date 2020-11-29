@@ -197,7 +197,7 @@ class Mario:
 		if foot > top:
 			y -= foot - top
 			ends_climb = True
-		if foot < bottom:
+		if dy < 0 and foot < bottom:
 			y += bottom - foot
 			ends_climb = True
 		if ends_climb:
