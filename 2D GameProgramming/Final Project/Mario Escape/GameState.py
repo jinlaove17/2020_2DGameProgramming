@@ -5,6 +5,7 @@ import GameFramework
 import GameWorld
 import GameObject
 import GameSprite
+import EndingState
 import Image
 import Font
 import json
@@ -99,7 +100,7 @@ def handle_event(event):
 		GameFramework.pop()
 	elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_UP):
 		if (GameSprite.Door.OPENS and is_with_door):
-			print("Ending State로 넘어가기")
+			GameFramework.push(EndingState)
 
 	mario.handle_event(event)
 
@@ -164,7 +165,7 @@ def check_and_handle_collision():
 	# Mario와 Obstacle의 충돌처리 : Mario의 is_collide 변수를 True로 설정
 	for obstacle in GameWorld.objects_at(GameWorld.layer.obstacle):
 		if (GameObject.collides_box(mario, obstacle)):
-			#mario.is_collide = True
+			mario.is_collide = True
 			break
 
 	# Mario와 Plant의 충돌체크
