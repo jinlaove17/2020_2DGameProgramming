@@ -123,10 +123,19 @@ class Mario:
 			
 			if (ddx != 0):
 				dx += ddx
-				self.state = \
-					Mario.LEFT_RUN if dx < 0 else \
-					Mario.RIGHT_RUN if dx > 0 else \
-					Mario.LEFT_IDLE if ddx > 0 else Mario.RIGHT_IDLE
+				if self.state == Mario.LEFT_JUMP:
+					if dx > 0: self.state = Mario.RIGHT_JUMP
+				elif self.state == Mario.LEFT_FALLING:
+					if dx > 0: self.state = Mario.RIGHT_FALLING
+				elif self.state == Mario.RIGHT_JUMP:
+					if dx < 0: self.state = Mario.LEFT_JUMP
+				elif self.state == Mario.RIGHT_FALLING:
+					if dx < 0: self.state = Mario.LEFT_FALLING
+				else:
+					self.state = \
+						Mario.LEFT_RUN if dx < 0 else \
+						Mario.RIGHT_RUN if dx > 0 else \
+						Mario.LEFT_IDLE if ddx > 0 else Mario.RIGHT_IDLE
 				
 			if (self.prev_state == None):
 				self.prev_state = self.state
