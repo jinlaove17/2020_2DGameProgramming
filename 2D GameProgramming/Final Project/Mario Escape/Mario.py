@@ -76,8 +76,8 @@ class Mario:
 	def update(self):
 		(x, y) = self.pos
 		(dx, dy) = self.delta
-		x += dx * Mario.MOVE_PPS * GameFramework.delta_time
-		y += dy * Mario.MOVE_PPS * GameFramework.delta_time
+		if self.state != Mario.DIE:
+			x += dx * Mario.MOVE_PPS * GameFramework.delta_time
 		self.pos = (x, y)
 		self.time += GameFramework.delta_time
 		self.die()
@@ -87,6 +87,7 @@ class Mario:
 			y = y + self.falling_speed * GameFramework.delta_time
 			self.pos = (x, y)
 			self.falling_speed -= Mario.GRAVITY * GameFramework.delta_time
+			#print('falling_speed:', self.falling_speed)
 
 		(_, foot, _, _) = self.get_bb()
 		platform = self.get_platform(foot)
@@ -107,90 +108,121 @@ class Mario:
 					(x, y) = self.pos
 					y = y + (top - foot)
 					self.pos = (x, y)
-					self.state = Mario.LEFT_RUN
+					self.state = Mario.LEFT_RUN if dx < 0 else Mario.LEFT_IDLE
 					self.falling_speed = 0
 			elif (self.state == Mario.RIGHT_FALLING or self.state == Mario.RIGHT_JUMP):
 				if (self.falling_speed < 0 and int(foot) <= top):
 					(x, y) = self.pos
 					y = y + (top - foot)
 					self.pos = (x, y)
-					self.state = Mario.RIGHT_RUN
+					self.state = Mario.RIGHT_RUN if dx > 0 else Mario.RIGHT_IDLE
 					self.falling_speed = 0
 
+		self.update_ladder()
+
 	def update_delta(self, ddx, ddy):
-		if (self.state != Mario.DIE):
-			(dx, dy) = self.delta
-			
-			if (ddx != 0):
-				dx += ddx
+		(dx, dy) = self.delta
+		dx += ddx
+
+		if (self.state == Mario.DIE):
+			self.delta = (dx, dy)
+			return
+		
+		if (ddx != 0):
+			if self.state == Mario.LEFT_JUMP:
+				if dx > 0: self.state = Mario.RIGHT_JUMP
+			elif self.state == Mario.LEFT_FALLING:
+				if dx > 0: self.state = Mario.RIGHT_FALLING
+			elif self.state == Mario.RIGHT_JUMP:
+				if dx < 0: self.state = Mario.LEFT_JUMP
+			elif self.state == Mario.RIGHT_FALLING:
+				if dx < 0: self.state = Mario.LEFT_FALLING
+			else:
 				self.state = \
 					Mario.LEFT_RUN if dx < 0 else \
 					Mario.RIGHT_RUN if dx > 0 else \
 					Mario.LEFT_IDLE if ddx > 0 else Mario.RIGHT_IDLE
 				
-			if (self.prev_state == None):
-				self.prev_state = self.state
-				
-			if (ddy != 0):
-				for object in GameWorld.objects_at(GameWorld.layer.platform):
-					if "Ladder" in object.name:
-						if GameObject.collides_box(self, object):
-							(_, bottom, _, top) = object.get_bb()
-							(_, foot, _, _) = self.get_bb()
-							print("[Foot] : ", foot, ", [Top] : ", top)
+		dy += ddy			
+		self.delta = (dx, dy)
 
-							if (ddy > 0 and foot >= top):
-								break
-							if (ddy < 0 and foot <= bottom):
-								break
-							# 위의 조건식을 써도 KEY_DOWN일 때는 문제가 되지 않는데, KEY_UP이 일어나면서 문제 발생
-							
-							dy += ddy
-							self.state = Mario.CLIMB
-							
-							if (foot + dy >= top):
-								self.state = self.prev_state
-								self.prev_state = None
-								ddy = 0
-								break
-							
-			self.delta = (dx, dy)
+	CLIMB_STATES = [ CLIMB, LEFT_IDLE, RIGHT_IDLE, LEFT_RUN, RIGHT_RUN ]
+	def update_ladder(self):
+		dx,dy = self.delta
+		if dy == 0: return
+
+		ladder = self.get_ladder()
+		if ladder is None:
+			if self.state == Mario.CLIMB:
+				self.state = self.prev_state
+			return
+
+		if self.state not in Mario.CLIMB_STATES:
+			return
+		if self.state != Mario.CLIMB:
+			self.prev_state = self.state
+			self.state = Mario.CLIMB
+
+		(_, bottom, _, top) = ladder.get_bb()
+		(_, foot, _, _) = self.get_bb()
+
+		x,y = self.pos
+		y += dy * Mario.MOVE_PPS * GameFramework.delta_time
+		self.pos = x,y
+
+		ends_climb = False
+		(_, foot, _, _) = self.get_bb()
+		if foot > top:
+			y -= foot - top
+			ends_climb = True
+		if dy < 0 and foot < bottom:
+			y += bottom - foot
+			ends_climb = True
+		if ends_climb:
+			self.state = self.prev_state
+			self.pos = x,y
+			return
+
+	def get_ladder(self):
+		for object in GameWorld.objects_at(GameWorld.layer.platform):
+			if "Ladder" in object.name:
+				if GameObject.collides_box(self, object):
+					return object
+		return None
 
 	def jump(self):
 		if (self.state in [Mario.LEFT_IDLE, Mario.LEFT_RUN]):
 			self.state = Mario.LEFT_JUMP
 			self.falling_speed = Mario.JUMP
 			Mario.JUMP_WAV.play()
+			# print(get_time())
 		elif (self.state in [Mario.RIGHT_IDLE, Mario.RIGHT_RUN]):
 			self.state = Mario.RIGHT_JUMP
 			self.falling_speed = Mario.JUMP
 			Mario.JUMP_WAV.play()
+			# print(get_time())
 
 	def die(self):
 		(x, y) = self.pos
 		h = Mario.IMAGE_RECT[self.state][self.fidx % len(Mario.IMAGE_RECT[self.state])][3] // 2
 
 		if (self.state != Mario.DIE):
-			if (y + h <= 0):
-				y += 200
-				self.pos = (x, y)
-				self.state = Mario.DIE
-				self.falling_speed = 0
-				Mario.LIFE_LOST_WAV.play()
-			elif (self.is_collide):
+			if (y + h <= 0 or self.is_collide):
 				y += 50
 				self.pos = (x, y)
 				self.state = Mario.DIE
-				self.falling_speed = 0
+				self.falling_speed = Mario.JUMP
 				Mario.LIFE_LOST_WAV.play()
+			# 	print(get_time())
 		else:
 			(x, y) = self.pos
 			y = y + self.falling_speed * GameFramework.delta_time
 			self.pos = (x, y)
-			self.delta = (0, 0)
-			self.falling_speed -= Mario.GRAVITY * GameFramework.delta_time // 10
+			self.falling_speed -= Mario.GRAVITY * GameFramework.delta_time
+			# print('dying_speed:', self.falling_speed)
 
-			if (y + h <= 0):
+			if (y + h <= 0): 
+				# print(get_time())
 				return True
 
 		return False
@@ -213,10 +245,8 @@ class Mario:
 
 		for platform in GameWorld.objects_at(GameWorld.layer.platform):
 			left, bottom, right, top = platform.get_bb()
-			if (x < left or x > right):
-				continue
-			if (foot < top - 20):
-				continue
+			if (x < left or x > right): continue
+			if (foot < top - 20): continue
 			if (selected == None):
 				selected = platform
 				select_top = top

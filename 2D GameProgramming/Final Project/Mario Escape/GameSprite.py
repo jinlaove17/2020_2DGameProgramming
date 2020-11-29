@@ -22,6 +22,30 @@ def load():
 				#print(name)
 				sprite_rects[name] = tuple(data[name])
 
+def createObject(info, mario):
+	# obj = clazz(info["name"], info["x"], info["y"], info["w"], info["h"])
+	obj = None
+	if ("Tile" in info["name"] or "Ladder" in info["name"]):
+		obj = Platform(info["name"], info["x"], info["y"], info["w"], info["h"])
+	elif ("Coin" in info["name"]):
+		obj = Coin(info["name"], info["x"], info["y"])
+	elif ("Obstacle_FireBar" in info["name"]):
+		obj = FireBarObstacle(info["name"], info["x"], info["y"], info["w"], info["h"])
+	elif ("Obstacle_Spike" in info["name"]):
+		obj = SpikeObstacle(info["name"], info["x"], info["y"], info["w"], info["h"])
+	elif ("Obstacle" in info["name"]):
+		obj = Obstacle(info["name"], info["x"], info["y"], info["w"], info["h"])
+	elif ("Plant" in info["name"]):
+		obj = Plant(info["name"], info["x"], info["y"], mario)
+	elif ("Box" in info["name"]):
+		obj = Box(info["name"], info["x"], info["y"], info["w"], info["h"], mario)
+	elif ("Cannon" in info["name"]):
+		obj = Cannon(info["name"], info["x"], info["y"])
+	elif ("Door" in info["name"]):
+		obj = Door(info["name"], info["x"], info["y"])
+
+	return obj
+
 class Platform:
 	def __init__(self, name, x, y, w, h):
 		self.name = name
@@ -84,11 +108,13 @@ class Coin:
 
 class Obstacle:
 	FALLING_PPS = 300
-	IMAGE_RECT_SPIKE = [
-		(585, 316, 61, 25),
-		(673, 316, 64, 49),
-		(761, 316, 68, 79)
-	]
+	ROTATIONS = {
+		"Obstacle_FireBar_1": (280, math.pi),
+		"Obstacle_FireBar_2": (140, math.pi),
+		"Obstacle_FireBar_3": (0, 0),
+		"Obstacle_FireBar_4": (140, 0),
+		"Obstacle_FireBar_5": (280, 0),
+	}
 
 	def __init__(self, name, x, y, w, h, dx=0, dy=0):
 		self.name = name
@@ -101,36 +127,19 @@ class Obstacle:
 		self.rad = 0
 		self.radius = 0
 		self.radian = 0
+		self.spike_height = 0
 
-		if ("FireBar" in self.name):
-			if ("FireBar_1" in self.name):
-				self.radius = 280
-				self.radian = math.pi
-			elif ("FireBar_2" in self.name):
-				self.radius = 140
-				self.radian = math.pi
-			elif ("FireBar_4" in self.name):
-				self.radius = 140
-				self.radian = 0
-			elif ("FireBar_5" in self.name):
-				self.radius = 280
-				self.radian = 0
+		if self.name in Obstacle.ROTATIONS:
+			self.radius, self.radian = Obstacle.ROTATIONS[self.name]
 
 	def draw(self):
 		self.time += GameFramework.delta_time
 		self.rad += GameFramework.delta_time
 		self.radian += GameFramework.delta_time
+		self.drawImage()
 
-		if ("FireBar" in self.name):
-			self.pos = (400 + self.radius * math.cos(self.radian), 250 + self.radius * math.sin(self.radian))
-			sprite_image.clip_composite_draw(*self.rect, self.rad, ' ', *self.pos, *self.size)
-		elif ("Spike" in self.name):
-			FPS = 1
-			self.fidx = round(self.time * FPS) % len(Obstacle.IMAGE_RECT_SPIKE)
-			sprite_image.clip_draw_to_origin(*Obstacle.IMAGE_RECT_SPIKE[self.fidx], *self.pos)
-
-		elif ("Stone" in self.name or "Bullet" in self.name):
-			sprite_image.clip_draw(*self.rect, *self.pos)
+	def drawImage(self):
+		sprite_image.clip_draw(*self.rect, *self.pos)
 
 	def update(self):
 		(x, y) = self.pos
@@ -151,20 +160,38 @@ class Obstacle:
 	def get_bb(self):
 		(x, y) = self.pos
 
-		if ("Spike" in self.name):
-			(w, h) = (Obstacle.IMAGE_RECT_SPIKE[self.fidx][2], Obstacle.IMAGE_RECT_SPIKE[self.fidx][3])
-			left = x
-			bottom = y
-			right = x + w
-			top = y + h
-		else:
-			(w, h) = self.size
-			left = x - w // 2
-			bottom = y - h // 2
-			right = x + w // 2
-			top = y + h // 2
+		(w, h) = self.size
+		left = x - w // 2
+		bottom = y - h // 2
+		right = x + w // 2
+		top = y + h // 2
 
 		return (left, bottom, right, top)
+
+class FireBarObstacle(Obstacle):
+	def drawImage(self):	
+		self.pos = (400 + self.radius * math.cos(self.radian), 250 + self.radius * math.sin(self.radian))
+		sprite_image.clip_composite_draw(*self.rect, self.rad, ' ', *self.pos, *self.size)
+
+class SpikeObstacle(Obstacle):
+	IMAGE_RECT = (761, 316, 68, 72)
+
+	def update(self):
+		t = self.time % 2.0
+		if t > 1.0: t = 2.0 - t
+		h = SpikeObstacle.IMAGE_RECT[3]
+		self.spike_height = round(h * t)
+
+	def drawImage(self):
+		x, y, w, h = SpikeObstacle.IMAGE_RECT
+		y += h - self.spike_height
+		h = self.spike_height
+		sprite_image.clip_draw_to_origin(x, y, w, h, *self.pos)
+
+	def get_bb(self):
+		(x, y) = self.pos
+		(_, _, w, h) = SpikeObstacle.IMAGE_RECT
+		return (x, y, x + w, y + self.spike_height)
 
 class Plant:
 	FPS = 4
@@ -263,12 +290,6 @@ class Box:
 		sprite_image.clip_draw_to_origin(*self.rect, *self.pos, *self.size)
 
 	def update(self):
-		#if (self.is_collide):
-		#	(mario_dx, mario_dy) = self.mario.delta
-		#	self.mario.delta = (mario_dx / 2, mario_dy)
-		#	(x, y) = self.pos
-		#	x += (mario_dx / 2) * 250 * GameFramework.delta_time
-		#	self.pos = (x, y)
 		pass
 
 	def get_bb(self):
@@ -405,8 +426,8 @@ class Door:
 
 		left = x
 		bottom = y
-		right =  x + w
-		top =  y + h
+		right = x + w
+		top = y + h
 
 		return (left, bottom, right, top)
 

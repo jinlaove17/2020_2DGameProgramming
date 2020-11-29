@@ -44,28 +44,19 @@ def enter():
 			data = json.load(file)
 
 			for info in data:
-				if ("Tile" in info["name"] or "Ladder" in info["name"]):
-					object = GameSprite.Platform(info["name"], info["x"], info["y"], info["w"], info["h"])
-				elif ("Coin" in info["name"]):
-					object = GameSprite.Coin(info["name"], info["x"], info["y"])
+				obj = GameSprite.createObject(info, mario)
+				if obj is None:
+					print("Not created:", info["name"])
+					continue
+				if isinstance(obj, GameSprite.Coin):
 					TOTAL_COIN_COUNT += 1
-				elif ("Obstacle" in info["name"]):
-					object = GameSprite.Obstacle(info["name"], info["x"], info["y"], info["w"], info["h"])
-				elif ("Plant" in info["name"]):
-					object = GameSprite.Plant(info["name"], info["x"], info["y"], mario)
-				elif ("Box" in info["name"]):
-					object = GameSprite.Box(info["name"], info["x"], info["y"], info["w"], info["h"], mario)
-				elif ("Cannon" in info["name"]):
-					object = GameSprite.Cannon(info["name"], info["x"], info["y"])
-				elif ("Door" in info["name"]):
-					object = GameSprite.Door(info["name"], info["x"], info["y"])
 
-				GameWorld.add(info["layer_index"], object, level)
+				GameWorld.add(info["layer_index"], obj, level)
 		
 		GameWorld.add(GameWorld.layer.mario, mario, level)
 		GameWorld.add(GameWorld.layer.background, background, level)
 		GameWorld.add(GameWorld.layer.ui, ui, level)
-			
+
 	GameWorld.curr_objects = GameWorld.stage1_objects
 	load_sound()
 
@@ -75,7 +66,7 @@ def update():
 
 	if (state == STATE_GAME_OVER):
 		return
-	if (TOTAL_COIN_COUNT == 0 and not GameSprite.Door.OPENS):
+	if (TOTAL_COIN_COUNT == 0):
 		GameSprite.Door.open_door()
 
 	GameWorld.update()
@@ -86,7 +77,7 @@ def update():
 
 def draw():
 	GameWorld.draw()
-	GameObject.draw_collision_box()
+	#GameObject.draw_collision_box()
 
 	font.draw(95, get_canvas_height() - 60, "X %d" % TOTAL_COIN_COUNT, FONT_COLOR)
 
@@ -101,6 +92,29 @@ def handle_event(event):
 	elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_UP):
 		if (GameSprite.Door.OPENS and is_with_door):
 			GameFramework.push(EndingState)
+
+	global STAGE_LEVEL
+	if event.type == SDL_KEYDOWN:
+		if event.key == SDLK_1:
+			mario.pos = (100, 200)
+			STAGE_LEVEL = 1
+			GameWorld.curr_objects = GameWorld.stage1_objects
+		elif event.key == SDLK_2:
+			mario.pos = (100, 200)
+			STAGE_LEVEL = 2
+			GameWorld.curr_objects = GameWorld.stage2_objects
+		elif event.key == SDLK_3:
+			mario.pos = (750, 200)
+			STAGE_LEVEL = 3
+			GameWorld.curr_objects = GameWorld.stage3_objects
+		elif event.key == SDLK_4:
+			mario.pos = (100, 200)
+			STAGE_LEVEL = 4
+			GameWorld.curr_objects = GameWorld.stage4_objects
+		elif event.key == SDLK_5:
+			mario.pos = (100, 200)
+			STAGE_LEVEL = 5
+			GameWorld.curr_objects = GameWorld.stage5_objects
 
 	mario.handle_event(event)
 
@@ -164,24 +178,16 @@ def check_and_handle_collision():
 	# Mario와 Obstacle의 충돌체크
 	# Mario와 Obstacle의 충돌처리 : Mario의 is_collide 변수를 True로 설정
 	for obstacle in GameWorld.objects_at(GameWorld.layer.obstacle):
-		if (GameObject.collides_box(mario, obstacle)):
+		if GameObject.collides_box(mario, obstacle):
 			mario.is_collide = True
 			break
 
 	# Mario와 Plant의 충돌체크
 	# Mario와 Plant의 충돌처리 : Mario의 is_collide 변수를 True로 설정
 	for plant in GameWorld.objects_at(GameWorld.layer.plant):
-		if (GameObject.collides_box(mario, plant)):
+		if GameObject.collides_box(mario, plant):
 			mario.is_collide = True
 			break
-
-	# Mario와 Box의 충돌체크
-	# Mario와 Box의 충돌처리 : 충돌시 Box의 is_collide 변수를 True로 설정, 비충돌시 False로 설정
-	#for box in GameWorld.objects_at(GameWorld.layer.box):
-	#	if (GameObject.collides_box(mario, box)):
-	#		box.is_collide = True
-	#	else:
-	#		box.is_collide = False
 
 	# Stone과 Plant 및 Box의 충돌체크
 	# Stone과 Plant의 충돌처리 : Stone 객체 remove 후, state를 DIE로 변경
@@ -189,13 +195,13 @@ def check_and_handle_collision():
 	for obstacle in GameWorld.objects_at(GameWorld.layer.obstacle):
 		if ("Stone" in obstacle.name):
 			for plant in GameWorld.objects_at(GameWorld.layer.plant):
-				if (GameObject.collides_box(obstacle, plant)):
+				if GameObject.collides_box(obstacle, plant):
 					GameWorld.remove(obstacle)
 					plant.state = GameSprite.Plant.DIE
 					plant_dead_wav.play()
 					return
 			for box in GameWorld.objects_at(GameWorld.layer.box):
-				if (GameObject.collides_box(obstacle, box)):
+				if GameObject.collides_box(obstacle, box):
 					GameWorld.remove(obstacle)
 					GameWorld.remove(box)
 					ladder = GameSprite.Platform("Ladder_1", 740, 430, 39, 170)
@@ -205,12 +211,13 @@ def check_and_handle_collision():
 	# Mario와 Door의 충돌체크
 	# Mario와 Door의 충돌처리 : 충돌시 Mario의 is_with_door 변수를 True로 설정, 비충돌시 False로 설정
 	global is_with_door
-	
+
 	for door in GameWorld.objects_at(GameWorld.layer.door):
 		if (GameObject.collides_box(mario, door)):
 			is_with_door = True
 		else:
 			is_with_door = False
+
 
 def set_stage(stage):
 	global STAGE_LEVEL
@@ -227,8 +234,6 @@ def change_stage():
 	global mario
 
 	if (mario.die()):
-		ui.decrease_life()
-
 		if (ui.life <= 0):
 			GameWorld.remove(mario)
 			return
@@ -272,9 +277,8 @@ def change_stage():
 			x = hw
 			set_stage(NEXT)
 			GameWorld.curr_objects = GameWorld.stage4_objects
-		elif ((730 < x - hw and x + hw < get_canvas_width()) and (y - hh > get_canvas_height())):
-			y = hh
-			mario.delta = (0, 0)
+		elif ((730 < x and x < get_canvas_width()) and (y > get_canvas_height())):
+			y = 2 * hh
 			STAGE_LEVEL = 5
 			GameWorld.curr_objects = GameWorld.stage5_objects
 	elif (STAGE_LEVEL == 4):
@@ -289,12 +293,11 @@ def change_stage():
 			x = hw
 		elif (x > get_canvas_width() - hw):
 			x = get_canvas_width() - hw
-		elif (y < hh):
-			y = get_canvas_width() - hh
-			mario.delta = (0, 0)
+		elif (y <= hh * 3 // 2):
+			y = get_canvas_height() - hh
 			STAGE_LEVEL = 3
 			GameWorld.curr_objects = GameWorld.stage3_objects
-			
+
 	mario.pos = (x, y)
 
 if (__name__ == "__main__"):
