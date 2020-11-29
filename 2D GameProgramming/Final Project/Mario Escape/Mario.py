@@ -77,7 +77,7 @@ class Mario:
 		(x, y) = self.pos
 		(dx, dy) = self.delta
 		x += dx * Mario.MOVE_PPS * GameFramework.delta_time
-		y += dy * Mario.MOVE_PPS * GameFramework.delta_time
+		# y += dy * Mario.MOVE_PPS * GameFramework.delta_time
 		self.pos = (x, y)
 		self.time += GameFramework.delta_time
 		self.die()
@@ -117,6 +117,8 @@ class Mario:
 					self.state = Mario.RIGHT_RUN
 					self.falling_speed = 0
 
+		self.update_ladder()
+
 	def update_delta(self, ddx, ddy):
 		if (self.state != Mario.DIE):
 			(dx, dy) = self.delta
@@ -140,28 +142,50 @@ class Mario:
 			if (self.prev_state == None):
 				self.prev_state = self.state
 				
-			if (ddy != 0):
-				for object in GameWorld.objects_at(GameWorld.layer.platform):
-					if "Ladder" in object.name:
-						if GameObject.collides_box(self, object):
-							(_, bottom, _, top) = object.get_bb()
-							(_, foot, _, _) = self.get_bb()
-							print("[Foot] : ", foot, ", [Top] : ", top)
+			dy += ddy
+			# if (ddy != 0):
+			# 	for object in GameWorld.objects_at(GameWorld.layer.platform):
+			# 		if "Ladder" in object.name:
+			# 			if GameObject.collides_box(self, object):
+			# 				(_, bottom, _, top) = object.get_bb()
+			# 				(_, foot, _, _) = self.get_bb()
+			# 				print("[Foot] : ", foot, ", [Top] : ", top)
 
-							if (ddy > 0 and foot >= top): break
-							if (ddy < 0 and foot <= bottom): break
-							# 위의 조건식을 써도 KEY_DOWN일 때는 문제가 되지 않는데, KEY_UP이 일어나면서 문제 발생
+			# 				if (ddy > 0 and foot >= top): break
+			# 				if (ddy < 0 and foot <= bottom): break
+			# 				# 위의 조건식을 써도 KEY_DOWN일 때는 문제가 되지 않는데, KEY_UP이 일어나면서 문제 발생
 							
-							dy += ddy
-							self.state = Mario.CLIMB
+			# 				dy += ddy
+			# 				self.state = Mario.CLIMB
 							
-							if (foot + dy >= top):
-								self.state = self.prev_state
-								self.prev_state = None
-								ddy = 0
-								break
+			# 				if (foot + dy >= top):
+			# 					self.state = self.prev_state
+			# 					self.prev_state = None
+			# 					ddy = 0
+			# 					break
 							
 			self.delta = (dx, dy)
+
+	def update_ladder(self):
+		if not self.in_ladder():
+			if self.state == Mario.CLIMB:
+				self.state = self.prev_state
+			return
+		x,y = self.pos
+		dx,dy = self.delta
+		y += dy * Mario.MOVE_PPS * GameFramework.delta_time
+		self.pos = x,y
+
+		self.prev_state = self.state
+		self.state = Mario.CLIMB
+
+	def in_ladder(self):
+		for object in GameWorld.objects_at(GameWorld.layer.platform):
+			if "Ladder" in object.name:
+				if GameObject.collides_box(self, object):
+					return True
+		return False
+
 
 	def jump(self):
 		if (self.state in [Mario.LEFT_IDLE, Mario.LEFT_RUN]):
