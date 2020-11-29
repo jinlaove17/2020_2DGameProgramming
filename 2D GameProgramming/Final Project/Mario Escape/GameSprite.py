@@ -189,25 +189,24 @@ class FireBarObstacle(Obstacle):
 		sprite_image.clip_composite_draw(*self.rect, self.rad, ' ', *self.pos, *self.size)
 
 class SpikeObstacle(Obstacle):
-	IMAGE_RECT_SPIKE = [
-		(585, 316, 61, 25),
-		(673, 316, 64, 49),
-		(761, 316, 68, 79)
-	]
-	def drawImage(self):	
-		FPS = 1
-		self.fidx = round(self.time * FPS) % len(SpikeObstacle.IMAGE_RECT_SPIKE)
-		sprite_image.clip_draw_to_origin(*SpikeObstacle.IMAGE_RECT_SPIKE[self.fidx], *self.pos)
+	# IMAGE_RECT = (761, 316, 68, 79)
+	IMAGE_RECT = (761, 316, 68, 72)
+	def update(self):
+		t = self.time % 2.0
+		if t > 1.0: t = 2.0 - t
+		h = SpikeObstacle.IMAGE_RECT[3]
+		self.spike_height = round(h * t)
+
+	def drawImage(self):
+		x, y, w, h = SpikeObstacle.IMAGE_RECT
+		y += h - self.spike_height
+		h = self.spike_height
+		sprite_image.clip_draw_to_origin(x, y, w, h, *self.pos)
 
 	def get_bb(self):
 		(x, y) = self.pos
-		(_, _, w, h) = SpikeObstacle.IMAGE_RECT_SPIKE[self.fidx]
-		left = x
-		bottom = y
-		right = x + w
-		top = y + h
-
-		return (left, bottom, right, top)
+		(_, _, w, h) = SpikeObstacle.IMAGE_RECT
+		return (x, y, x + w, y + self.spike_height)
 
 class Plant:
 	FPS = 4
