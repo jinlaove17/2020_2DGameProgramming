@@ -167,24 +167,46 @@ class Mario:
 			self.delta = (dx, dy)
 
 	def update_ladder(self):
-		if not self.in_ladder():
+		dx,dy = self.delta
+		if dy == 0: return
+
+		ladder = self.get_ladder()
+		if ladder is None:
 			if self.state == Mario.CLIMB:
 				self.state = self.prev_state
 			return
+
+		if self.state != Mario.CLIMB:
+			self.prev_state = self.state
+			self.state = Mario.CLIMB
+
+		(_, bottom, _, top) = ladder.get_bb()
+		(_, foot, _, _) = self.get_bb()
+
 		x,y = self.pos
-		dx,dy = self.delta
 		y += dy * Mario.MOVE_PPS * GameFramework.delta_time
 		self.pos = x,y
 
-		self.prev_state = self.state
-		self.state = Mario.CLIMB
+		ends_climb = False
+		(_, foot, _, _) = self.get_bb()
+		if foot > top:
+			y -= foot - top
+			ends_climb = True
+		if foot < bottom:
+			y += bottom - foot
+			ends_climb = True
+		if ends_climb:
+			self.state = self.prev_state
+			self.pos = x,y
+			return
 
-	def in_ladder(self):
+
+	def get_ladder(self):
 		for object in GameWorld.objects_at(GameWorld.layer.platform):
 			if "Ladder" in object.name:
 				if GameObject.collides_box(self, object):
-					return True
-		return False
+					return object
+		return None
 
 
 	def jump(self):
