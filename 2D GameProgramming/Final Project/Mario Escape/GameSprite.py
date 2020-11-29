@@ -110,6 +110,13 @@ class Obstacle:
 		(673, 316, 64, 49),
 		(761, 316, 68, 79)
 	]
+	ROTATIONS = {
+		"Obstacle_FireBar_1": (280, math.pi),
+		"Obstacle_FireBar_2": (140, math.pi),
+		"Obstacle_FireBar_3": (0, 0),
+		"Obstacle_FireBar_4": (140, 0),
+		"Obstacle_FireBar_5": (280, 0),
+	}
 
 	def __init__(self, name, x, y, w, h, dx=0, dy=0):
 		self.name = name
@@ -123,19 +130,23 @@ class Obstacle:
 		self.radius = 0
 		self.radian = 0
 
-		if ("FireBar" in self.name):
-			if ("FireBar_1" in self.name):
-				self.radius = 280
-				self.radian = math.pi
-			elif ("FireBar_2" in self.name):
-				self.radius = 140
-				self.radian = math.pi
-			elif ("FireBar_4" in self.name):
-				self.radius = 140
-				self.radian = 0
-			elif ("FireBar_5" in self.name):
-				self.radius = 280
-				self.radian = 0
+		if self.name in Obstacle.ROTATIONS:
+			self.radius, self.radian = Obstacle.ROTATIONS[self.name]
+
+		# if ("FireBar" in self.name):
+		# 	print("Obstacle:", self.name)
+		# 	if ("FireBar_1" in self.name):
+		# 		self.radius = 280
+		# 		self.radian = math.pi
+		# 	elif ("FireBar_2" in self.name):
+		# 		self.radius = 140
+		# 		self.radian = math.pi
+		# 	elif ("FireBar_4" in self.name):
+		# 		self.radius = 140
+		# 		self.radian = 0
+		# 	elif ("FireBar_5" in self.name):
+		# 		self.radius = 280
+		# 		self.radian = 0
 
 	def draw(self):
 		self.time += GameFramework.delta_time
