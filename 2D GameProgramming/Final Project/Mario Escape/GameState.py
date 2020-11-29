@@ -43,23 +43,28 @@ def enter():
 			data = json.load(file)
 
 			for info in data:
-				if ("Tile" in info["name"] or "Ladder" in info["name"]):
-					object = GameSprite.Platform(info["name"], info["x"], info["y"], info["w"], info["h"])
-				elif ("Coin" in info["name"]):
-					object = GameSprite.Coin(info["name"], info["x"], info["y"], info["w"], info["h"])
-					TOTAL_COIN_COUNT += 1
-				elif ("Obstacle" in info["name"]):
-					object = GameSprite.Obstacle(info["name"], info["x"], info["y"], info["w"], info["h"])
-				elif ("Plant" in info["name"]):
-					object = GameSprite.Plant(info["name"], info["x"], info["y"], info["w"], info["h"], mario)
-				elif ("Box" in info["name"]):
-					object = GameSprite.Box(info["name"], info["x"], info["y"], info["w"], info["h"], mario)
-				elif ("Cannon" in info["name"]):
-					object = GameSprite.Cannon(info["name"], info["x"], info["y"])
-				elif ("Door" in info["name"]):
-					object = GameSprite.Door(info["name"], info["x"], info["y"])
+				obj = GameSprite.createObject(info, mario)
+				if obj is None:
+					print("Not created:", info["name"])
+					continue
+				# obj = clazz(info["name"], info["x"], info["y"], info["w"], info["h"])
+				# if ("Tile" in info["name"] or "Ladder" in info["name"]):
+				# 	object = GameSprite.Platform(info["name"], info["x"], info["y"], info["w"], info["h"])
+				# elif ("Coin" in info["name"]):
+				# 	object = GameSprite.Coin(info["name"], info["x"], info["y"], info["w"], info["h"])
+				# 	TOTAL_COIN_COUNT += 1
+				# elif ("Obstacle" in info["name"]):
+				# 	object = GameSprite.Obstacle(info["name"], info["x"], info["y"], info["w"], info["h"])
+				# elif ("Plant" in info["name"]):
+				# 	object = GameSprite.Plant(info["name"], info["x"], info["y"], info["w"], info["h"], mario)
+				# elif ("Box" in info["name"]):
+				# 	object = GameSprite.Box(info["name"], info["x"], info["y"], info["w"], info["h"], mario)
+				# elif ("Cannon" in info["name"]):
+				# 	object = GameSprite.Cannon(info["name"], info["x"], info["y"])
+				# elif ("Door" in info["name"]):
+				# 	object = GameSprite.Door(info["name"], info["x"], info["y"])
 
-				GameWorld.add(info["layer_index"], object, level)
+				GameWorld.add(info["layer_index"], obj, level)
 		
 		GameWorld.add(GameWorld.layer.mario, mario, level)
 		GameWorld.add(GameWorld.layer.background, background, level)

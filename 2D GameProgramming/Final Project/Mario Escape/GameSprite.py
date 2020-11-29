@@ -22,6 +22,27 @@ def load():
 				#print(name)
 				sprite_rects[name] = tuple(data[name])
 
+def createObject(info, mario):
+	# obj = clazz(info["name"], info["x"], info["y"], info["w"], info["h"])
+	obj = None
+	if ("Tile" in info["name"] or "Ladder" in info["name"]):
+		obj = Platform(info["name"], info["x"], info["y"], info["w"], info["h"])
+	elif ("Coin" in info["name"]):
+		obj = Coin(info["name"], info["x"], info["y"], info["w"], info["h"])
+		# TOTAL_COIN_COUNT += 1
+	elif ("Obstacle" in info["name"]):
+		obj = Obstacle(info["name"], info["x"], info["y"], info["w"], info["h"])
+	elif ("Plant" in info["name"]):
+		obj = Plant(info["name"], info["x"], info["y"], info["w"], info["h"], mario)
+	elif ("Box" in info["name"]):
+		obj = Box(info["name"], info["x"], info["y"], info["w"], info["h"], mario)
+	elif ("Cannon" in info["name"]):
+		obj = Cannon(info["name"], info["x"], info["y"])
+	elif ("Door" in info["name"]):
+		obj = Door(info["name"], info["x"], info["y"])
+
+	return obj
+
 class Platform:
 	def __init__(self, name, x, y, w, h):
 		self.name = name
