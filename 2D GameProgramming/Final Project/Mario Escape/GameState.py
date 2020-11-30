@@ -241,8 +241,7 @@ def change_stage():
 			return
 		else:
 			mario.pos = (100, 300)
-			mario.delta = (0, 0)
-			mario.state = Mario.RIGHT_RUN
+			mario.state = Mario.RIGHT_IDLE
 			mario.falling_speed = 0
 			mario.is_collide = False
 			STAGE_LEVEL = 1
