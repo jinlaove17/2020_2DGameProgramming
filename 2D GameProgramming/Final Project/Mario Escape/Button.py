@@ -26,6 +26,10 @@ class Button:
 		(395, 8, 103, 39)
 		]
 	SELECT_WAV = None
+	IS_DES_DRAW = False
+	DES_IMAGE = None
+	DES_ON_WAV = None
+	DES_OFF_WAV = None
 
 	def __init__(self, x, y, menu):
 		self.pos = (x, y)
@@ -37,8 +41,18 @@ class Button:
 		if (Button.SELECT_WAV == None):
 			Button.SELECT_WAV = load_wav("SOUND/stomp.wav")
 
+		if (Button.DES_IMAGE == None):
+			Button.DES_IMAGE = Image.load("IMAGE/Description.png")
+
+		if (Button.DES_ON_WAV == None or Button.DES_OFF_WAV == None):
+			Button.DES_ON_WAV = load_wav("SOUND/description_on.wav")
+			Button.DES_OFF_WAV = load_wav("SOUND/description_off.wav")
+
 	def draw(self):
 		self.image.clip_draw(*self.rect, *self.pos)
+
+		if (Button.IS_DES_DRAW):
+			Button.DES_IMAGE.draw(get_canvas_width() // 2, get_canvas_height() // 2)
 
 	def update(self):
 		pass
@@ -75,7 +89,8 @@ class Button:
 				if (self.menu == GAME_START):
 					GameFramework.push(GameState)
 				elif (self.menu == DESCRIPTION):
-					pass
+					Button.IS_DES_DRAW = True
+					Button.DES_ON_WAV.play()
 				elif (self.menu == EXIT):
 					GameFramework.quit()
 

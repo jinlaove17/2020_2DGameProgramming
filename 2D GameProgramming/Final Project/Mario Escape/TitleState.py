@@ -16,13 +16,17 @@ def draw():
 	GameWorld.draw()
 
 def handle_event(event):
-	global running
-
 	if (event.type == SDL_QUIT):
 		GameFramework.quit()
 
-	if (handle_mouse(event)):
-		return
+	if (Button.IS_DES_DRAW):
+		if (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
+			Button.IS_DES_DRAW = False
+			Button.DES_OFF_WAV.play()
+	else:
+		if (handle_mouse(event)):
+			return
+
 
 def build_title_state():
 	GameWorld.title_init(["background", "ui"])
