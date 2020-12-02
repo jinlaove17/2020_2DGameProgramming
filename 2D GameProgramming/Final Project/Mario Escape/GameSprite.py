@@ -233,11 +233,9 @@ class Plant:
 			if (Plant.ATTACK_COUNT >= 5):
 				Plant.ATTACK_COUNT = 0
 				attacks = random.choice([True, False])
-
-				if (attacks): self.state = Plant.ATTACK
-			
+				if (attacks): self.attack()
+				
 		if (self.state == Plant.ATTACK and self.fidx == len(Plant.IMAGE_RECT[self.state]) - 1):
-			self.attack()
 			self.state = Plant.IDLE
 		elif (self.state == Plant.DIE):
 			(x, y) = self.pos
@@ -271,6 +269,7 @@ class Plant:
 	def attack(self):
 		(x, y, dx, dy) = self.get_coords()
 		if (x < 100): return
+		self.state = Plant.ATTACK
 		Plant.ATTACK_WAV.play()
 
 		# 78은 Obstacle_Stone의 너비(w)
