@@ -34,13 +34,13 @@ def draw():
 
 	background.draw(400, 300)
 
-	FPS = 20
+	FPS = 30
 	y += FPS * GameFramework.delta_time
-	font.draw(500, y, "Mario successfully escaped!", FONT_COLOR)
-	font.draw(560, y - 60, "MARIO ESCAPE", FONT_COLOR)
-	font.draw(490, y - 120, "DIRECTOR : 2017180038 전종우", FONT_COLOR)
-	font.draw(480, y - 180, "2D게임프로그래밍 기말 프로젝트", FONT_COLOR)
-	font.draw(570, y - 300, "THANK YOU!!", FONT_COLOR)
+	font.draw(480, y, "Mario escaped successfully !", FONT_COLOR)
+	font.draw(540, y - 100, "< MARIO ESCAPE >", FONT_COLOR)
+	font.draw(480, y - 160, "DIRECTOR : 2017180038 전종우", FONT_COLOR)
+	font.draw(450, y - 220, "2D Game Programming Final Project", FONT_COLOR)
+	font.draw(560, y - 400, "THANK YOU !", FONT_COLOR)
 
 def handle_event(event):
 	if (event.type == SDL_QUIT):

@@ -7,6 +7,7 @@ import Image
 
 class Mario:
 	LEFT_IDLE, RIGHT_IDLE, LEFT_RUN, RIGHT_RUN, LEFT_JUMP, RIGHT_JUMP, LEFT_FALLING, RIGHT_FALLING, CLIMB, DIE = range(10)
+	CLIMB_STATES = [ CLIMB, LEFT_IDLE, RIGHT_IDLE, LEFT_RUN, RIGHT_RUN ]
 	MOVE_PPS = 250
 	GRAVITY = 3000
 	JUMP = 900
@@ -30,22 +31,18 @@ class Mario:
 		[ (53, 426, 32, 76), (197, 426, 32, 76), (341, 426, 30, 76) ],
 		# Right Idle
 		[ (480, 426, 31, 76), (617, 426, 33, 76), (763, 426, 31, 76) ],
-
 		# Left Run
 		[ (52, 284, 41, 76), (197, 284, 32, 76), (330, 284, 49, 76) ],
 		# Right Run
 		[ (471, 284, 49, 76), (622, 284, 32, 76), (758, 284, 41, 76) ],
-
 		# Left Jump
 		[ (45, 141, 50, 76), (185, 141, 50, 76), (329, 141, 50, 76) ],
 		# Right Jump
 		[ (473, 141, 50, 76), (617, 141, 50, 76), (758, 141, 50, 76) ],
-
 		# Left Falling
 		[ (609, 0, 50, 76) ],
 		# Right Falling
 		[ (757, 0, 50, 76) ],
-
 		# Climb
 		[ (49, 0, 46, 76), (193, 0, 42, 76) ],
 		# Die
@@ -67,7 +64,7 @@ class Mario:
 			Mario.JUMP_WAV = load_wav("SOUND/jump.wav")
 		if (Mario.LIFE_LOST_WAV == None):
 			Mario.LIFE_LOST_WAV = load_wav("SOUND/life lost.wav")
-			Mario.LIFE_LOST_WAV.set_volume(60)
+			Mario.LIFE_LOST_WAV.set_volume(50)
 
 	def draw(self):
 		self.fidx = round(self.time * self.FPS) % len(Mario.IMAGE_RECT[self.state])
@@ -76,14 +73,16 @@ class Mario:
 	def update(self):
 		(x, y) = self.pos
 		(dx, dy) = self.delta
-		if self.state != Mario.DIE:
+
+		if (self.state != Mario.DIE):
 			x += dx * Mario.MOVE_PPS * GameFramework.delta_time
+
 		self.pos = (x, y)
 		self.time += GameFramework.delta_time
 
 		if (self.state in [Mario.LEFT_JUMP, Mario.RIGHT_JUMP, Mario.LEFT_FALLING, Mario.RIGHT_FALLING]):
 			(x, y) = self.pos
-			y = y + self.falling_speed * GameFramework.delta_time
+			y += self.falling_speed * GameFramework.delta_time
 			self.pos = (x, y)
 			self.falling_speed -= Mario.GRAVITY * GameFramework.delta_time
 			#print('falling_speed:', self.falling_speed)
@@ -105,14 +104,14 @@ class Mario:
 			elif (self.state == Mario.LEFT_FALLING or self.state == Mario.LEFT_JUMP):
 				if (self.falling_speed < 0 and int(foot) <= top):
 					(x, y) = self.pos
-					y = y + (top - foot)
+					y += (top - foot)
 					self.pos = (x, y)
 					self.state = Mario.LEFT_RUN if dx < 0 else Mario.LEFT_IDLE
 					self.falling_speed = 0
 			elif (self.state == Mario.RIGHT_FALLING or self.state == Mario.RIGHT_JUMP):
 				if (self.falling_speed < 0 and int(foot) <= top):
 					(x, y) = self.pos
-					y = y + (top - foot)
+					y += (top - foot)
 					self.pos = (x, y)
 					self.state = Mario.RIGHT_RUN if dx > 0 else Mario.RIGHT_IDLE
 					self.falling_speed = 0
@@ -128,14 +127,14 @@ class Mario:
 			return
 		
 		if (ddx != 0):
-			if self.state == Mario.LEFT_JUMP:
-				if dx > 0: self.state = Mario.RIGHT_JUMP
-			elif self.state == Mario.LEFT_FALLING:
-				if dx > 0: self.state = Mario.RIGHT_FALLING
-			elif self.state == Mario.RIGHT_JUMP:
-				if dx < 0: self.state = Mario.LEFT_JUMP
-			elif self.state == Mario.RIGHT_FALLING:
-				if dx < 0: self.state = Mario.LEFT_FALLING
+			if (self.state == Mario.LEFT_JUMP):
+				if (dx > 0): self.state = Mario.RIGHT_JUMP
+			elif (self.state == Mario.LEFT_FALLING):
+				if (dx > 0): self.state = Mario.RIGHT_FALLING
+			elif (self.state == Mario.RIGHT_JUMP):
+				if (dx < 0): self.state = Mario.LEFT_JUMP
+			elif (self.state == Mario.RIGHT_FALLING):
+				if (dx < 0): self.state = Mario.LEFT_FALLING
 			else:
 				self.state = \
 					Mario.LEFT_RUN if dx < 0 else \
@@ -145,47 +144,85 @@ class Mario:
 		dy += ddy			
 		self.delta = (dx, dy)
 
-	CLIMB_STATES = [ CLIMB, LEFT_IDLE, RIGHT_IDLE, LEFT_RUN, RIGHT_RUN ]
 	def update_ladder(self):
-		dx,dy = self.delta
-		if dy == 0: return
+		(dx, dy) = self.delta
+
+		if (dy == 0):
+			return
 
 		ladder = self.get_ladder()
-		if ladder is None:
+
+		if (ladder is None):
 			if self.state == Mario.CLIMB:
 				self.state = self.prev_state
 			return
 
-		if self.state not in Mario.CLIMB_STATES:
+		if (self.state not in Mario.CLIMB_STATES):
 			return
-		if self.state != Mario.CLIMB:
+
+		if (self.state != Mario.CLIMB):
 			self.prev_state = self.state
 			self.state = Mario.CLIMB
 
 		(_, bottom, _, top) = ladder.get_bb()
 		(_, foot, _, _) = self.get_bb()
 
-		x,y = self.pos
+		(x, y) = self.pos
 		y += dy * Mario.MOVE_PPS * GameFramework.delta_time
-		self.pos = x,y
+		self.pos = (x, y)
 
 		ends_climb = False
 		(_, foot, _, _) = self.get_bb()
-		if foot > top:
+
+		if (foot > top):
 			y -= foot - top
 			ends_climb = True
-		if dy < 0 and foot < bottom:
+
+		if (dy < 0 and foot < bottom):
 			y += bottom - foot
 			ends_climb = True
-		if ends_climb:
+
+		if (ends_climb):
 			self.state = self.prev_state
 			self.pos = x,y
 			return
 
+	def get_bb(self):
+		(x, y) = self.pos
+		(w, h) = (Mario.IMAGE_RECT[self.state][self.fidx % len(Mario.IMAGE_RECT[self.state])][2] // 2, Mario.IMAGE_RECT[self.state][self.fidx % len(Mario.IMAGE_RECT[self.state])][3] // 2)
+
+		left = x - w
+		bottom = y - h
+		right = x + w
+		top = y + h
+
+		return (left, bottom, right, top)
+
+	def get_platform(self, foot):
+		selected = None
+		select_top = 0
+		(x, y) = self.pos
+
+		for platform in GameWorld.objects_at(GameWorld.layer.platform):
+			(left, bottom, right, top) = platform.get_bb()
+
+			if (x < left or x > right): continue
+			if (foot < top - 20): continue
+
+			if (selected == None):
+				selected = platform
+				select_top = top
+			else:
+				if (top > select_top):
+					selected = platform
+					select_top = top
+
+		return selected
+
 	def get_ladder(self):
 		for object in GameWorld.objects_at(GameWorld.layer.platform):
-			if "Ladder" in object.name:
-				if GameObject.collides_box(self, object):
+			if ("Ladder" in object.name):
+				if (GameObject.collides_box(self, object)):
 					return object
 		return None
 
@@ -212,7 +249,6 @@ class Mario:
 				self.state = Mario.DIE
 				self.falling_speed = Mario.JUMP
 				Mario.LIFE_LOST_WAV.play()
-			# 	print(get_time())
 		else:
 			(x, y) = self.pos
 			y = y + self.falling_speed * GameFramework.delta_time
@@ -225,36 +261,6 @@ class Mario:
 				return True
 
 		return False
-
-	def get_bb(self):
-		(x, y) = self.pos
-		(w, h) = (Mario.IMAGE_RECT[self.state][self.fidx % len(Mario.IMAGE_RECT[self.state])][2] // 2, Mario.IMAGE_RECT[self.state][self.fidx % len(Mario.IMAGE_RECT[self.state])][3] // 2)
-
-		left = x - w
-		bottom = y - h
-		right = x + w
-		top = y + h
-
-		return (left, bottom, right, top)
-
-	def get_platform(self, foot):
-		selected = None
-		select_top = 0
-		(x, y) = self.pos
-
-		for platform in GameWorld.objects_at(GameWorld.layer.platform):
-			left, bottom, right, top = platform.get_bb()
-			if (x < left or x > right): continue
-			if (foot < top - 20): continue
-			if (selected == None):
-				selected = platform
-				select_top = top
-			else:
-				if top > select_top:
-					selected = platform
-					select_top = top
-
-		return selected
 
 	def handle_event(self, event):
 		pair = (event.type, event.key)

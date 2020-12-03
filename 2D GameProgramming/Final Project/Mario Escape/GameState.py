@@ -93,7 +93,9 @@ def handle_event(event):
 		if (GameSprite.Door.OPENS and is_with_door):
 			GameFramework.push(EndingState)
 
+	# 각 스테이지 디버그 용도
 	global STAGE_LEVEL
+
 	if event.type == SDL_KEYDOWN:
 		if event.key == SDLK_1:
 			mario.pos = (100, 200)

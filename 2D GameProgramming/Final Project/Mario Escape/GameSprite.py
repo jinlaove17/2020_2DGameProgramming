@@ -38,7 +38,7 @@ def createObject(info, mario):
 	elif ("Plant" in info["name"]):
 		obj = Plant(info["name"], info["x"], info["y"], mario)
 	elif ("Box" in info["name"]):
-		obj = Box(info["name"], info["x"], info["y"], info["w"], info["h"], mario)
+		obj = Box(info["name"], info["x"], info["y"], info["w"], info["h"])
 	elif ("Cannon" in info["name"]):
 		obj = Cannon(info["name"], info["x"], info["y"])
 	elif ("Door" in info["name"]):
@@ -115,6 +115,8 @@ class Obstacle:
 		"Obstacle_FireBar_4": (140, 0),
 		"Obstacle_FireBar_5": (280, 0),
 	}
+	SPIKE_WAV = None
+	FIREBAR_WAV = None
 
 	def __init__(self, name, x, y, w, h, dx=0, dy=0):
 		self.name = name
@@ -129,13 +131,19 @@ class Obstacle:
 		self.radian = 0
 		self.spike_height = 0
 
-		if self.name in Obstacle.ROTATIONS:
-			self.radius, self.radian = Obstacle.ROTATIONS[self.name]
+		if (self.name in Obstacle.ROTATIONS):
+			(self.radius, self.radian) = Obstacle.ROTATIONS[self.name]
+
+		if (Obstacle.SPIKE_WAV == None):
+			Obstacle.SPIKE_WAV = load_wav("SOUND/spike.wav")
+			Obstacle.SPIKE_WAV.set_volume(30)
+
+		if (Obstacle.FIREBAR_WAV == None):
+			Obstacle.FIREBAR_WAV = load_wav("SOUND/fire whoosh.wav")
+			Obstacle.FIREBAR_WAV.set_volume(40)
 
 	def draw(self):
 		self.time += GameFramework.delta_time
-		self.rad += GameFramework.delta_time
-		self.radian += GameFramework.delta_time
 		self.drawImage()
 
 	def drawImage(self):
@@ -159,8 +167,8 @@ class Obstacle:
 
 	def get_bb(self):
 		(x, y) = self.pos
-
 		(w, h) = self.size
+
 		left = x - w // 2
 		bottom = y - h // 2
 		right = x + w // 2
@@ -169,7 +177,18 @@ class Obstacle:
 		return (left, bottom, right, top)
 
 class FireBarObstacle(Obstacle):
-	def drawImage(self):	
+	def update(self):
+		# 5개의 FireBar 중 한 개만 소리나도록 설정
+		if ("FireBar_3" in self.name):
+			t = self.time % math.pi
+			idx = int(100 * t)
+			
+			if (312 <= idx and idx <= 313):
+				Obstacle.FIREBAR_WAV.play()
+
+	def drawImage(self):
+		self.rad += GameFramework.delta_time
+		self.radian += GameFramework.delta_time
 		self.pos = (400 + self.radius * math.cos(self.radian), 250 + self.radius * math.sin(self.radian))
 		sprite_image.clip_composite_draw(*self.rect, self.rad, ' ', *self.pos, *self.size)
 
@@ -178,12 +197,19 @@ class SpikeObstacle(Obstacle):
 
 	def update(self):
 		t = self.time % 2.0
-		if t > 1.0: t = 2.0 - t
+		idx = int(100 * t)
+
+		if (t > 1.0):
+			t = 2.0 - t
+
 		h = SpikeObstacle.IMAGE_RECT[3]
 		self.spike_height = round(h * t)
 
+		if (99 <= idx and idx <= 100):
+			Obstacle.SPIKE_WAV.play()
+
 	def drawImage(self):
-		x, y, w, h = SpikeObstacle.IMAGE_RECT
+		(x, y, w, h) = SpikeObstacle.IMAGE_RECT
 		y += h - self.spike_height
 		h = self.spike_height
 		sprite_image.clip_draw_to_origin(x, y, w, h, *self.pos)
@@ -213,10 +239,10 @@ class Plant:
 		self.name = name
 		self.rect = sprite_rects[name]
 		self.pos = (x, y)
-		self.mario = mario
 		self.fidx = 0
 		self.time = 0
 		self.state = Plant.IDLE
+		self.mario = mario
 
 		if (Plant.ATTACK_WAV == None):
 			Plant.ATTACK_WAV = load_wav("SOUND/plant attack.wav")
@@ -227,26 +253,30 @@ class Plant:
 		sprite_image.clip_draw(*Plant.IMAGE_RECT[self.state][self.fidx], *self.pos)
 
 	def update(self):
-		if (self.state == Plant.IDLE):
+		(mario_x, _) = self.mario.pos
+
+		if (mario_x > 100 and self.state == Plant.IDLE):
 			Plant.ATTACK_COUNT += Plant.FPS * GameFramework.delta_time
 
 			if (Plant.ATTACK_COUNT >= 5):
-				Plant.ATTACK_COUNT = 0
-				attacks = random.choice([True, False])
-				if (attacks): self.attack()
+				if (self.fidx == 0):
+					Plant.ATTACK_COUNT = 0
+					self.state = Plant.ATTACK
 				
 		if (self.state == Plant.ATTACK and self.fidx == len(Plant.IMAGE_RECT[self.state]) - 1):
+			self.attack(mario_x)
 			self.state = Plant.IDLE
 		elif (self.state == Plant.DIE):
 			(x, y) = self.pos
-			(dx, dy) = (0, -1)
+			dy = -1
 
-			h = Plant.IMAGE_RECT[self.state][self.fidx][3] // 2
-			x += dx * Plant.FALLING_PPS * GameFramework.delta_time
 			y += dy * Plant.FALLING_PPS * GameFramework.delta_time
+			h = Plant.IMAGE_RECT[self.state][self.fidx][3] // 2
+
 			self.pos = (x, y)
 
-			if (y < -h): GameWorld.remove(self)
+			if (y < -h):
+				GameWorld.remove(self)
 
 	def get_bb(self):
 		(x, y) = self.pos
@@ -259,31 +289,23 @@ class Plant:
 
 		return (left, bottom, right, top)
 
-	def get_coords(self):
-		(x, y) = self.mario.pos
+	def attack(self, mario_x):
+		# Obstacle_Stone의 너비와 높이
+		(w, h) = (78, 58)
+		(x, y) = (mario_x, get_canvas_height() + h)
 		(dx, dy) = (0, -1)
 
-		# 58은 Obstacle_Stone의 높이(h)
-		return (x, get_canvas_height() + 58, dx, dy)
-
-	def attack(self):
-		(x, y, dx, dy) = self.get_coords()
-		if (x < 100): return
-		self.state = Plant.ATTACK
 		Plant.ATTACK_WAV.play()
 
-		# 78은 Obstacle_Stone의 너비(w)
-		stone = Obstacle("Obstacle_Stone", x, y, 78, 58, dx, dy)
+		stone = Obstacle("Obstacle_Stone", x, y, w, h, dx, dy)
 		GameWorld.add(GameWorld.layer.obstacle, stone, 4)
 
 class Box:
-	def __init__(self, name, x, y, w, h, mario):
+	def __init__(self, name, x, y, w, h):
 		self.name = name
 		self.rect = sprite_rects[name]
 		self.pos = (x, y)
 		self.size = (w, h)
-		self.mario = mario
-		self.is_collide = False
 
 	def draw(self):
 		sprite_image.clip_draw_to_origin(*self.rect, *self.pos, *self.size)
@@ -361,8 +383,9 @@ class Cannon:
 			Cannon.ATTACK_COUNT += Cannon.FPS * GameFramework.delta_time
 
 			if (Cannon.ATTACK_COUNT >= 3):
-				Cannon.ATTACK_COUNT = 0
-				attacks = random.choice([True, False])
+				if (self.fidx == 0):
+					Cannon.ATTACK_COUNT = 0
+					attacks = random.choice([True, False])
 
 				if (attacks):
 					self.state = Cannon.ATTACK
@@ -382,19 +405,16 @@ class Cannon:
 
 		return (left, bottom, right, top)
 
-	def get_coords(self):
-		(x, y) = self.pos
-		x -= 14
-		(dx, dy) = (-1, 0)
-
-		return (x, y, dx, dy)
-
 	def attack(self):
-		(x, y, dx, dy) = self.get_coords()
+		# Obstacle_Bullet의 너비와 높이
+		(w, h) = (27, 19)
+		(x, y) = self.pos
+		(dx, dy) = (-1, 0)
+		x -= 14
+		
 		Cannon.ATTACK_WAV.play()
 
-		# 78은 Obstacle_Stone의 너비(w)
-		bullet = Obstacle("Obstacle_Bullet", x, y, 27, 19, dx, dy)
+		bullet = Obstacle("Obstacle_Bullet", x, y, w, h, dx, dy)
 		GameWorld.add(GameWorld.layer.obstacle, bullet, 5)
 
 class Door:
