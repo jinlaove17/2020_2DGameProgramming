@@ -93,29 +93,34 @@ def handle_event(event):
 		if (GameSprite.Door.OPENS and is_with_door):
 			GameFramework.push(EndingState)
 
-	# 각 스테이지 디버그 용도
+	# 각 스테이지 디버그
 	#global STAGE_LEVEL
 
 	#if event.type == SDL_KEYDOWN:
 	#	if event.key == SDLK_1:
-	#		mario.pos = (100, 200)
 	#		STAGE_LEVEL = 1
+	#		mario.pos = (100, 200)
+	#		background.set_stage_level(STAGE_LEVEL)
 	#		GameWorld.curr_objects = GameWorld.stage1_objects
 	#	elif event.key == SDLK_2:
-	#		mario.pos = (100, 200)
 	#		STAGE_LEVEL = 2
+	#		mario.pos = (100, 200)
+	#		background.set_stage_level(STAGE_LEVEL)
 	#		GameWorld.curr_objects = GameWorld.stage2_objects
 	#	elif event.key == SDLK_3:
 	#		mario.pos = (750, 200)
 	#		STAGE_LEVEL = 3
+	#		background.set_stage_level(STAGE_LEVEL)
 	#		GameWorld.curr_objects = GameWorld.stage3_objects
 	#	elif event.key == SDLK_4:
-	#		mario.pos = (100, 200)
 	#		STAGE_LEVEL = 4
+	#		mario.pos = (100, 200)
+	#		background.set_stage_level(STAGE_LEVEL)
 	#		GameWorld.curr_objects = GameWorld.stage4_objects
 	#	elif event.key == SDLK_5:
-	#		mario.pos = (100, 200)
 	#		STAGE_LEVEL = 5
+	#		mario.pos = (100, 200)
+	#		background.set_stage_level(STAGE_LEVEL - 2)
 	#		GameWorld.curr_objects = GameWorld.stage5_objects
 
 	mario.handle_event(event)
