@@ -146,10 +146,6 @@ class Mario:
 
 	def update_ladder(self):
 		(dx, dy) = self.delta
-
-		if (dy == 0):
-			return
-
 		ladder = self.get_ladder()
 
 		if (ladder is None):
@@ -158,6 +154,9 @@ class Mario:
 			return
 
 		if (self.state not in Mario.CLIMB_STATES):
+			return
+
+		if (dy == 0):
 			return
 
 		if (self.state != Mario.CLIMB):
