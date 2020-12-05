@@ -16,7 +16,7 @@ def enter():
 
 	global bgm, clear_wav
 
-	bgm = load_music("SOUND/Ending.mp3")
+	bgm = load_music("SOUND/ending theme.mp3")
 	clear_wav = load_wav("SOUND/clear.wav")
 	
 	bgm.repeat_play()
