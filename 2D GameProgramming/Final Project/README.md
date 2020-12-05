@@ -1,7 +1,7 @@
 # Final Project
 
 ### 1. 게임의 소개
-- **게임 제목 :** Escape Room
+- **게임 제목 :** Mario Escape
 - **Copy한 게임 제목 :** Beer Monster
 - **Copy한 게임 스크린샷 :**  
 ![Beer Monster1](https://user-images.githubusercontent.com/70697461/94151795-ca03be00-feb5-11ea-9946-f2fcbed98a10.GIF)
@@ -12,8 +12,8 @@
 <br/>
 
 ### 2. GameState (Scene)의 수 및 각각의 이름
-- 8개(예정)
-- 로고 스테이트 → 타이틀 스테이트 → 게임 스테이트(탈출맵1 ~ 탈출맵4) → 게임 스테이트(히든맵) → 엔딩 스테이트
+- 8개
+- Logo State → Title State → Game State(Stage1 ~ Stage4) → Game Stage(Stage5) → Ending State
   
 <br/>
 
@@ -37,7 +37,7 @@
 	- 마우스 왼쪽 클릭으로 게임의 UI를 클릭하거나, 숨겨진 무언가를 찾도록 한다.
 
 - **다른 State로 이동한다면, 각 이동에 대한 조건 및 방법**  
-![state struct](https://user-images.githubusercontent.com/70697461/94277518-a491b580-ff84-11ea-8251-4c2076071acc.GIF)
+![State 간의 이동](https://user-images.githubusercontent.com/70697461/101239411-b59c3700-372a-11eb-803b-9b054b48acee.GIF)
 	- 로고 스테이트는 1초 뒤 자동으로 타이틀 스테이트로 넘어간다.  
 	- 타이틀 스테이트에서 '게임시작'을 버튼을 누르면 게임 스테이트(탈출맵 1)로 넘어간다.  
 	- 모든 게임 스테이트는 연결되어 있으므로 캐릭터가 화면상의 좌측끝 또는 우측끝으로 가게되면 탈출맵의 전 후로 이동한다.  
@@ -78,13 +78,7 @@
 <br/>
 
 ### 6. 개발 범위(개발 주요 요소를 정량적으로 제시)
-|**내용**|**최소 범위**|**추가 범위**|
-|:----:|:-----:|:-----:|
-|캐릭터 컨트롤|4방향(상하좌우), 점프|-|
-|UI|ESC키를 통해 타이틀 스테이트로 전환|우측 상단의 톱니바퀴 도형을 그린 후 클릭시 사운드 ON/OFF, 타이틀 화면 등 옵션 UI설정
-|사운드|각 스테이트의 배경음악, 객체와 장애물 충돌 시 비명소리 등|-|
-|장애물|제자리에 있거나 직선으로 움직이는 장애물 구현|원 또는 곡선을 그리며 움직이는 장애물 구현|
-|애니메이션|IDLE, 이동, 점프, 사망 등의 애니메이션 구현|-|
+![개발 범위](https://user-images.githubusercontent.com/70697461/101239694-fbf29580-372c-11eb-8ca6-f3638945acf7.GIF)
 
 <br/>
 
@@ -143,5 +137,40 @@
 - 사다리 구현(KEY_DOWN, KEY_UP과 관련한 문제) 및 캐릭터의 상, 하, 좌, 우 자연스러운 이동
 - Visual Studio로 Python을 구현하다보면 2000MB이상의 메모리를 잡아먹을 때가 있는데 메모리 누수를 확인하는 방법
 - JSON으로 GameWorld의 objects 리스트에 객체들을 넣었는데 이 때, State간 다르게 설정하기 위해서 stage별 objects list를 만들었는데 이 방법의 문제점과 좋은 개선 방향
+
+<br/>
+
+### 14. 모든 발표 영상에 대한 Youtube 링크
+- Term Project 1차 발표 영상 링크 : https://youtu.be/pMdlrKNOnIM
+- Term Project 2차 발표 영상 링크 : https://youtu.be/py7v2NzSChs
+- Term Project 최종 발표 영상 링크 : https://youtu.be/3bP-juGCz9s
+
+<br/>
+
+### 15. 항목별 계획 대비 진행 사항
+![진행 사항](https://user-images.githubusercontent.com/70697461/101239521-5f7bc380-372b-11eb-97dd-257f5439c059.GIF)
+
+<br/>
+
+### 16. 주차별 Commit 횟수
+![Git Commits](https://user-images.githubusercontent.com/70697461/101239530-75898400-372b-11eb-9f8a-917ae5dcbe05.GIF)
+
+<br/>
+
+### 17. 게임 플레이 영상, 지인 플레이 영상, 지인 인터뷰 영상
+- Term Project 최종 발표 영상 또는 Term Project_Final Presentation.pptx에 있습니다.
+
+<br/>
+
+### 18. 게임에 대한 지인의 평가 및 버그처리
+![평가](https://user-images.githubusercontent.com/70697461/101239563-a8337c80-372b-11eb-862d-700a4df1d0fc.GIF)
+![버그처리](https://user-images.githubusercontent.com/70697461/101239555-a23d9b80-372b-11eb-8542-3277dad6b9ef.GIF)
+
+<br/>
+
+### 19. 기말 프로젝트를 하면서 겪은 어려움에 대해 소개
+- 어려운 것은 무궁무진했지만, 이보다도 게임을 재밌게 만들기 위한 아이디어와 그렇게 생각해 낸 것을 구현해내지 못한 나의 코딩실력이 아쉬웠다. 또한 코드를 리뷰하면서 다형성을 구현하지 못해서 분기한 것, name을 사용하여 문자열을 레이어 인덱스의 객체와 비교한 것, 스테이지를 스크롤로 만들지 못하고 object_list를 바꿔치기 해서 구현한 것이 다 만들고 보니 많이 아쉽게 느껴졌다.
+
+<br/>
 
 **[KPU] 2D GameProgramming**
