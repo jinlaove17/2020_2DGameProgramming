@@ -33,6 +33,7 @@ def createObject(info, mario):
 		obj = FireBarObstacle(info["name"], info["x"], info["y"], info["w"], info["h"])
 	elif ("Obstacle_Spike" in info["name"]):
 		obj = SpikeObstacle(info["name"], info["x"], info["y"], info["w"], info["h"])
+		obj.height = 0
 	elif ("Obstacle" in info["name"]):
 		obj = Obstacle(info["name"], info["x"], info["y"], info["w"], info["h"])
 	elif ("Plant" in info["name"]):
@@ -129,7 +130,7 @@ class Obstacle:
 		self.rad = 0
 		self.radius = 0
 		self.radian = 0
-		self.spike_height = 0
+		self.wav_count = 0
 
 		if (self.name in Obstacle.ROTATIONS):
 			(self.radius, self.radian) = Obstacle.ROTATIONS[self.name]
@@ -140,7 +141,7 @@ class Obstacle:
 
 		if (Obstacle.FIREBAR_WAV == None):
 			Obstacle.FIREBAR_WAV = load_wav("SOUND/fire whoosh.wav")
-			Obstacle.FIREBAR_WAV.set_volume(40)
+			Obstacle.FIREBAR_WAV.set_volume(10)
 
 	def draw(self):
 		self.time += GameFramework.delta_time
@@ -150,20 +151,7 @@ class Obstacle:
 		sprite_image.clip_draw(*self.rect, *self.pos)
 
 	def update(self):
-		(x, y) = self.pos
-		(w, h) = self.size
-		
-		x += self.dx * Obstacle.FALLING_PPS * GameFramework.delta_time
-		y += self.dy * Obstacle.FALLING_PPS * GameFramework.delta_time
-		
-		self.pos = (x, y)
-		
-		if ("Stone" in self.name):
-			if (y < -h):
-				GameWorld.remove(self)
-		elif ("Bullet" in self.name):
-			if (x < -w):
-				GameWorld.remove(self)
+		pass
 
 	def get_bb(self):
 		(x, y) = self.pos
@@ -176,15 +164,42 @@ class Obstacle:
 
 		return (left, bottom, right, top)
 
+class SpikeObstacle(Obstacle):
+	IMAGE_RECT = (761, 316, 68, 72)
+
+	def update(self):
+		t = self.time % 2.0
+
+		if (t > 1.0):
+			t = 2.0 - t
+
+		h = SpikeObstacle.IMAGE_RECT[3]
+		self.height = round(h * t)
+
+		self.wav_count += GameFramework.delta_time
+
+		if (self.wav_count >= 1):
+			self.wav_count = -1
+			Obstacle.SPIKE_WAV.play()
+
+	def drawImage(self):
+		(x, y, w, h) = SpikeObstacle.IMAGE_RECT
+		y += h - self.height
+		h = self.height
+		sprite_image.clip_draw_to_origin(x, y, w, h, *self.pos)
+
+	def get_bb(self):
+		(x, y) = self.pos
+		(_, _, w, h) = SpikeObstacle.IMAGE_RECT
+		return (x, y, x + w, y + self.height)
+
 class FireBarObstacle(Obstacle):
 	def update(self):
-		# 5개의 FireBar 중 한 개만 소리나도록 설정
-		if ("FireBar_3" in self.name):
-			t = self.time % math.pi
-			idx = int(100 * t)
-			
-			if (312 <= idx and idx <= 313):
-				Obstacle.FIREBAR_WAV.play()
+		self.wav_count += GameFramework.delta_time
+		
+		if (self.wav_count >= 2):
+			self.wav_count = 0
+			Obstacle.FIREBAR_WAV.play()
 
 	def drawImage(self):
 		self.rad += GameFramework.delta_time
@@ -192,32 +207,55 @@ class FireBarObstacle(Obstacle):
 		self.pos = (400 + self.radius * math.cos(self.radian), 250 + self.radius * math.sin(self.radian))
 		sprite_image.clip_composite_draw(*self.rect, self.rad, ' ', *self.pos, *self.size)
 
-class SpikeObstacle(Obstacle):
-	IMAGE_RECT = (761, 316, 68, 72)
+class StoneObstacle(Obstacle):
+	def update(self):
+		(x, y) = self.pos
+		(w, h) = self.size
+		
+		x += self.dx * Obstacle.FALLING_PPS * GameFramework.delta_time
+		y += self.dy * Obstacle.FALLING_PPS * GameFramework.delta_time
+		
+		self.pos = (x, y)
+		
+		if (y < -h):
+			GameWorld.remove(self)
+
+class BulletObstacle(Obstacle):
+	def update(self):
+		(x, y) = self.pos
+		(w, h) = self.size
+		
+		x += self.dx * Obstacle.FALLING_PPS * GameFramework.delta_time
+		y += self.dy * Obstacle.FALLING_PPS * GameFramework.delta_time
+		
+		self.pos = (x, y)
+		
+		if (x < -w):
+			GameWorld.remove(self)
+
+class Box:
+	def __init__(self, name, x, y, w, h):
+		self.name = name
+		self.rect = sprite_rects[name]
+		self.pos = (x, y)
+		self.size = (w, h)
+
+	def draw(self):
+		sprite_image.clip_draw_to_origin(*self.rect, *self.pos, *self.size)
 
 	def update(self):
-		t = self.time % 2.0
-		idx = int(100 * t)
-
-		if (t > 1.0):
-			t = 2.0 - t
-
-		h = SpikeObstacle.IMAGE_RECT[3]
-		self.spike_height = round(h * t)
-
-		if (99 <= idx and idx <= 100):
-			Obstacle.SPIKE_WAV.play()
-
-	def drawImage(self):
-		(x, y, w, h) = SpikeObstacle.IMAGE_RECT
-		y += h - self.spike_height
-		h = self.spike_height
-		sprite_image.clip_draw_to_origin(x, y, w, h, *self.pos)
+		pass
 
 	def get_bb(self):
 		(x, y) = self.pos
-		(_, _, w, h) = SpikeObstacle.IMAGE_RECT
-		return (x, y, x + w, y + self.spike_height)
+		(w, h) = self.size
+
+		left = x
+		bottom = y
+		right =  x + w
+		top =  y + h
+
+		return (left, bottom, right, top)
 
 class Plant:
 	FPS = 4
@@ -297,59 +335,11 @@ class Plant:
 
 		Plant.ATTACK_WAV.play()
 
-		stone = Obstacle("Obstacle_Stone", x, y, w, h, dx, dy)
+		stone = StoneObstacle("Obstacle_Stone", x, y, w, h, dx, dy)
 		GameWorld.add(GameWorld.layer.obstacle, stone, 4)
 
-class Box:
-	def __init__(self, name, x, y, w, h):
-		self.name = name
-		self.rect = sprite_rects[name]
-		self.pos = (x, y)
-		self.size = (w, h)
-
-	def draw(self):
-		sprite_image.clip_draw_to_origin(*self.rect, *self.pos, *self.size)
-
-	def update(self):
-		pass
-
-	def get_bb(self):
-		(x, y) = self.pos
-		(w, h) = self.size
-
-		left = x
-		bottom = y
-		right =  x + w
-		top =  y + h
-
-		return (left, bottom, right, top)
-
-class UI:
-	def __init__(self, x, y):
-		self.mario_pos = (x, y)
-		self.life_pos = (x + 55, y + 30)
-		self.coin_pos = (x + 55, y)
-		self.life = 3
-
-	def draw(self):
-		mario_rect = (856, 323, 47, 62)
-		sprite_image.clip_draw_to_origin(*mario_rect, *self.mario_pos)
-		life_rect = (660, 596, 40 * self.life, 24)
-		sprite_image.clip_draw_to_origin(*life_rect, *self.life_pos)
-		coin_rect = (582, 445, 31, 32)
-		sprite_image.clip_draw_to_origin(*coin_rect, *self.coin_pos, 25, 25)
-
-	def update(self):
-		pass
-
-	def decrease_life(self):
-		self.life -= 1
-
-	def dead(self):
-		return (self.life <= 0)
-
 class Cannon:
-	FPS = 7
+	FPS = 8
 	ATTACK_COUNT = 0
 	IDLE, ATTACK = range(2)
 	LEFT, RIGHT = range(2)
@@ -410,11 +400,11 @@ class Cannon:
 		(w, h) = (27, 19)
 		(x, y) = self.pos
 		(dx, dy) = (-1, 0)
-		x -= 14
+		x -= 30
 		
 		Cannon.ATTACK_WAV.play()
 
-		bullet = Obstacle("Obstacle_Bullet", x, y, w, h, dx, dy)
+		bullet = BulletObstacle("Obstacle_Bullet", x, y, w, h, dx, dy)
 		GameWorld.add(GameWorld.layer.obstacle, bullet, 5)
 
 class Door:
@@ -453,3 +443,27 @@ class Door:
 	@staticmethod
 	def open_door():
 		Door.OPENS = True
+
+class UI:
+	def __init__(self, x, y):
+		self.mario_pos = (x, y)
+		self.life_pos = (x + 55, y + 30)
+		self.coin_pos = (x + 55, y)
+		self.life = 3
+
+	def draw(self):
+		mario_rect = (856, 323, 47, 62)
+		sprite_image.clip_draw_to_origin(*mario_rect, *self.mario_pos)
+		life_rect = (660, 596, 40 * self.life, 24)
+		sprite_image.clip_draw_to_origin(*life_rect, *self.life_pos)
+		coin_rect = (582, 445, 31, 32)
+		sprite_image.clip_draw_to_origin(*coin_rect, *self.coin_pos, 25, 25)
+
+	def update(self):
+		pass
+
+	def decrease_life(self):
+		self.life -= 1
+
+	def dead(self):
+		return (self.life <= 0)
